@@ -1,4 +1,4 @@
-package qchromatic.jecse.engine;
+package qchromatic.jecse.math;
 
 public class Transform {
 	public Vec2f position;

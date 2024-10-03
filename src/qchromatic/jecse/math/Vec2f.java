@@ -1,4 +1,4 @@
-package qchromatic.jecse.engine;
+package qchromatic.jecse.math;
 
 public class Vec2f {
 	public float x;
