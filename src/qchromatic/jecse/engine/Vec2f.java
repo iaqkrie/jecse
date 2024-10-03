@@ -4,12 +4,7 @@ public class Vec2f {
 	public float x;
 	public float y;
 
-	public static Vec2f zero = new Vec2f();
-	public static Vec2f right = new Vec2f(1, 0);
-	public static Vec2f up = new Vec2f(0, 1);
-	public static Vec2f unit = new Vec2f(1);
-
-	public Vec2f () { this(0); }
+	public Vec2f () { this(0f); }
 	public Vec2f (float xy) { this(xy, xy); }
 	public Vec2f (Vec2 other) { this(other.x, other.y); }
 	public Vec2f (Vec2f other) { this(other.x, other.y); }

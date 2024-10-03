@@ -4,11 +4,6 @@ public class Vec2 {
 	public int x;
 	public int y;
 
-	public static Vec2 zero = new Vec2();
-	public static Vec2 right = new Vec2(1, 0);
-	public static Vec2 up = new Vec2(0, 1);
-	public static Vec2 unit = new Vec2(1);
-
 	public Vec2 () { this(0); }
 	public Vec2 (int xy) { this(xy, xy); }
 	public Vec2 (Vec2f other) { this((int)(other.x), (int)(other.y)); }

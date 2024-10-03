@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Window {
+public final class Window {
 	private static final Vec2 DEFAULT_SIZE = new Vec2(800, 450);
 	private static final String DEFAULT_TITLE = "jecse app";
 
