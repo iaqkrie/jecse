@@ -13,6 +13,7 @@ public class Window {
 	private long _hwnd;
 
 	public Window () { this(DEFAULT_SIZE, DEFAULT_TITLE); }
+	public Window (String title) { this(DEFAULT_SIZE, title); }
 	public Window (Vec2 size, String title) {
 		GLFWErrorCallback.createPrint(System.err).set();
 
@@ -34,12 +35,8 @@ public class Window {
 		glfwGetWindowSize(_hwnd, width, height);
 		return new Vec2(width[0], height[0]);
 	}
-	public void setSize (int width, int height) {
-		glfwSetWindowSize(_hwnd, width, height);
-	}
-	public void setSize (Vec2 size) {
-		setSize(size.x, size.y);
-	}
+	public void setSize (Vec2 size) { setSize(size.x, size.y); }
+	public void setSize (int width, int height) { glfwSetWindowSize(_hwnd, width, height); }
 
 	public Vec2 getPosition () {
 		int[] x = new int[1];
@@ -47,19 +44,8 @@ public class Window {
 		glfwGetWindowPos(_hwnd, x, y);
 		return new Vec2(x[0], y[0]);
 	}
-	public void setPosition (int x, int y) {
-		glfwSetWindowPos(_hwnd, x, y);
-	}
-	public void setPosition (Vec2 position) {
-		setPosition(position.x, position.y);
-	}
-
-	public String getTitle () {
-		return glfwGetWindowTitle(_hwnd);
-	}
-	public void setTitle (String title) {
-		glfwSetWindowTitle(_hwnd, title);
-	}
+	public void setPosition (Vec2 position) { setPosition(position.x, position.y); }
+	public void setPosition (int x, int y) { glfwSetWindowPos(_hwnd, x, y); }
 
 	public void close () {
 		glfwSetWindowShouldClose(_hwnd, true);
