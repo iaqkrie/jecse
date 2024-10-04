@@ -2,8 +2,6 @@ package qchromatic.jecse.core;
 
 import qchromatic.jecse.graphics.Window;
 
-import static org.lwjgl.opengl.GL20.*;
-
 public final class Game {
 	private final Window _window;
 
@@ -15,30 +13,27 @@ public final class Game {
 
 	}
 
-	private void loop () {
+	private void loop (long dtime) {
 
 	}
 
 	private void render () {
-		glBegin(GL_TRIANGLES);
-			glColor3f(0f, 0f, 1f);
-			glVertex2f(0f, 0f);
 
-			glColor3f(1f, 0f, 0f);
-			glVertex2f(.5f, 0f);
-
-			glColor3f(0f, 1f, 0f);
-			glVertex2f(0f, .5f);
-		glEnd();
 	}
 
 	public void run () {
+		_window.show();
 		init();
 
+		long lastTime = System.nanoTime();
 		while (!_window.shouldClose()) {
+			long currentTime = System.nanoTime();
+			long dtime = (currentTime - lastTime) / 1_000_000;
+			lastTime = currentTime;
+
 			_window.pollEvents();
 
-			loop();
+			loop(dtime);
 			render();
 
 			_window.swapBuffers();

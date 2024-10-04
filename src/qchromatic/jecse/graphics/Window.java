@@ -1,11 +1,11 @@
 package qchromatic.jecse.graphics;
 
+import org.lwjgl.opengl.GL;
 import qchromatic.jecse.math.Vec2;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 
 public final class Window {
 	private static final Vec2 DEFAULT_SIZE = new Vec2(800, 450);
@@ -23,33 +23,14 @@ public final class Window {
 			return;
 		}
 
+		glfwDefaultWindowHints();
+		glfwWindowHint(GLFW_VISIBLE, 0);
+		glfwWindowHint(GLFW_RESIZABLE, 0);
+
 		_hwnd = glfwCreateWindow(size.x, size.y, title, 0, 0);
 		if (_hwnd == 0) {
 			System.err.println("Window init error!");
 			return;
-		}
-
-		glfwDefaultWindowHints();
-		glfwWindowHint(GLFW_RESIZABLE, 0);
-
-		glfwMakeContextCurrent(_hwnd);
-		glfwShowWindow(_hwnd);
-
-		while (!shouldClose()) {
-			pollEvents();
-
-			glBegin(GL_TRIANGLES);
-				glColor3f(0f, 0f, 1f);
-				glVertex2f(0f, 0f);
-
-				glColor3f(1f, 0f, 0f);
-				glVertex2f(.5f, 0f);
-
-				glColor3f(0f, 1f, 0f);
-				glVertex2f(0f, .5f);
-			glEnd();
-
-			swapBuffers();
 		}
 	}
 
@@ -81,6 +62,13 @@ public final class Window {
 
 	public void swapBuffers () {
 		glfwSwapBuffers(_hwnd);
+	}
+
+	public void show () {
+		glfwMakeContextCurrent(_hwnd);
+		GL.createCapabilities();
+
+		glfwShowWindow(_hwnd);
 	}
 
 	public void close () {
