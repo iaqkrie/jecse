@@ -1,5 +1,6 @@
 package qchromatic.jecse.core;
 
+import qchromatic.jecse.graphics.GraphicsEnviroment;
 import qchromatic.jecse.graphics.Window;
 
 public final class Game {
@@ -10,14 +11,18 @@ public final class Game {
 	}
 
 	private void init () {
-
+		GraphicsEnviroment.init();
 	}
 
 	private void loop (long dtime) {
-
+		GraphicsEnviroment.clear();
 	}
 
 	private void render () {
+		GraphicsEnviroment.render();
+	}
+
+	private void finalise () {
 
 	}
 
@@ -38,5 +43,7 @@ public final class Game {
 
 			_window.swapBuffers();
 		}
+
+		finalise();
 	}
 }
