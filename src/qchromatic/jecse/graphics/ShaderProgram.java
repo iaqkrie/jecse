@@ -25,4 +25,12 @@ public class ShaderProgram {
 		glDetachShader(program, vertexShader);
 		glDetachShader(program, fragmentShader);
 	}
+
+	public void use () {
+		glUseProgram(program);
+	}
+
+	public int getProgram () {
+		return program;
+	}
 }
