@@ -1,6 +1,7 @@
 package qchromatic.jecse.graphics;
 
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import qchromatic.jecse.math.Vec2;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -18,20 +19,16 @@ public final class Window {
 	public Window (Vec2 size, String title) {
 		GLFWErrorCallback.createPrint(System.err).set();
 
-		if (!glfwInit()) {
-			System.err.println("GLFW init error!");
-			return;
-		}
+		if (!glfwInit())
+			throw new IllegalStateException("GLFW init error!");
 
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, 0);
 		glfwWindowHint(GLFW_RESIZABLE, 0);
 
 		_hwnd = glfwCreateWindow(size.x, size.y, title, 0, 0);
-		if (_hwnd == 0) {
-			System.err.println("Window init error!");
-			return;
-		}
+		if (_hwnd == 0)
+			throw new RuntimeException("Window creation error!");
 	}
 
 	public Vec2 getSize () {
@@ -68,6 +65,7 @@ public final class Window {
 		glfwMakeContextCurrent(_hwnd);
 		GL.createCapabilities();
 
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		glfwShowWindow(_hwnd);
 	}
 

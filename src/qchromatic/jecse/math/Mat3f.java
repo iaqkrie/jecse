@@ -1,27 +1,24 @@
 package qchromatic.jecse.math;
 
+/**
+ * 3x3 float matrix with <b>COLUMN-MAJOR</b> layout
+ */
 public class Mat3f {
 	private float[] _matrix;
 
 	public Mat3f () {
-		_matrix = new float[9];
-
-		_matrix[0] = 1;
-		_matrix[4] = 1;
-		_matrix[8] = 1;
+		_matrix = new float[] {
+				1f, 0f, 0f,
+				0f, 1f, 0f,
+				0f, 0f, 1f
+		};
 	}
 
-	public float[] getMatrix () {
-		return _matrix.clone();
-	}
+	public float[] getMatrix () { return _matrix.clone(); }
 
-	public float get (int x, int y) {
-		return _matrix[y * 3 + x]; // TODO
-	}
+	public float get (int x, int y) { return _matrix[x * 3 + y]; }
 
-	public void set (int x, int y, float value) {
-		_matrix[y * 3 + x] = value; // TODO
-	}
+	public void set (int x, int y, float value) { _matrix[x * 3 + y] = value; }
 
 	public void translate (float x, float y) {
 		set(2, 0, get(2, 0) + x);
