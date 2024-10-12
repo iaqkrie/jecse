@@ -1,6 +1,7 @@
 package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.math.Mat3f;
+import qchromatic.jecse.math.Vec2;
 
 import java.nio.file.Paths;
 
@@ -44,7 +45,7 @@ public class GraphicsEnviroment {
 		glEnableVertexAttribArray(1);
 
 		glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.BYTES, 6 * Float.BYTES);
-		//glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(2);
 
 		_mainEbo = glGenBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _mainEbo);
@@ -58,9 +59,9 @@ public class GraphicsEnviroment {
 		_shaders.use();
 	}
 
-	public static void render (Mat3f model, Mat3f view, Mat3f projection) {
-		glClear(GL_COLOR_BUFFER_BIT);
+	public static void clear () { glClear(GL_COLOR_BUFFER_BIT); }
 
+	public static void render (Mat3f model, Mat3f view, Mat3f projection, Texture texture) {
 		int modelUf = glGetUniformLocation(_shaders.getHandler(), "model");
 		int viewUf = glGetUniformLocation(_shaders.getHandler(), "view");
 		int projectionUf = glGetUniformLocation(_shaders.getHandler(), "projection");
@@ -69,6 +70,27 @@ public class GraphicsEnviroment {
 		glUniformMatrix3fv(viewUf, false, view.getMatrix());
 		glUniformMatrix3fv(projectionUf, false, projection.getMatrix());
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture.texture);
+		int textureUf = glGetUniformLocation(_shaders.getHandler(), "tex");
+		glUniform1i(textureUf, 0);
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	public static void finalise () {
+		ShaderProgram.clearActiveProgram();
+		_shaders.delete();
+
+		glBindVertexArray(0);
+		glDeleteVertexArrays(_mainVao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(_mainVbo);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glDeleteBuffers(_mainEbo);
 	}
 }

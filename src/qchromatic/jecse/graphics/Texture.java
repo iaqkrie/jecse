@@ -56,17 +56,17 @@ public class Texture {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	public void setPixel (int x, int y, byte r, byte g, byte b, byte a) {
+	public void setPixel (int x, int y, float r, float g, float b, float a) {
 		int index = (y * _size.x + x) * 4;
-		_data[index] = r;
-		_data[index + 1] = g;
-		_data[index + 2] = b;
-		_data[index + 3] = a;
+		_data[index] = (byte)(r * 255);
+		_data[index + 1] = (byte)(g * 255);
+		_data[index + 2] = (byte)(b * 255);
+		_data[index + 3] = (byte)(a * 255);
 	}
 
 	public Vec2 getSize () { return new Vec2(_size); }
 
-	public void delete () {
+	public void deleteFromGPU () {
 		glDeleteTextures(texture);
 	}
 }

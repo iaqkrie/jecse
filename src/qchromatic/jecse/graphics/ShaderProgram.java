@@ -27,15 +27,18 @@ public class ShaderProgram {
 		int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, vertexShaderSource);
 		glCompileShader(vertexShader);
+		checkShaderCompilation(vertexShader);
 
 		int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, fragmentShaderSource);
 		glCompileShader(fragmentShader);
+		checkShaderCompilation(fragmentShader);
 
 		handler = glCreateProgram();
 		glAttachShader(handler, vertexShader);
 		glAttachShader(handler, fragmentShader);
 		glLinkProgram(handler);
+		checkProgramLinking(handler);
 
 		glDetachShader(handler, vertexShader);
 		glDetachShader(handler, fragmentShader);
@@ -44,11 +47,27 @@ public class ShaderProgram {
 		glDeleteShader(fragmentShader);
 	}
 
-	public void use () {
-		glUseProgram(handler);
+	public static void clearActiveProgram() { glUseProgram(0); }
+
+	public void use () { glUseProgram(handler); }
+
+	public int getHandler () { return handler; }
+
+	public void delete () { glDeleteProgram(handler); }
+
+	private void checkShaderCompilation(int shader) {
+		int compiled = glGetShaderi(shader, GL_COMPILE_STATUS);
+		if (compiled == 0) {
+			String log = glGetShaderInfoLog(shader);
+			throw new RuntimeException("Shader compilation error: " + log);
+		}
 	}
 
-	public int getHandler () {
-		return handler;
+	private void checkProgramLinking(int program) {
+		int linked = glGetProgrami(program, GL_LINK_STATUS);
+		if (linked == 0) {
+			String log = glGetProgramInfoLog(program);
+			throw new RuntimeException("Program linking error: " + log);
+		}
 	}
 }
