@@ -5,11 +5,13 @@ layout(location = 1) in vec4 aColor;
 
 out vec4 vertexColor;
 
-uniform mat3 matrix;
+uniform mat3 model;
+uniform mat3 view;
+uniform mat3 projection;
 
 void main() {
-    vec3 tPos = matrix * vec3(aPos, 1);
-    gl_Position = vec4(tPos, 1);
+    vec3 tPos = projection * view * model * vec3(aPos, 1);
+    gl_Position = vec4(tPos.xy, 0, 1);
 
     vertexColor = aColor;
 }

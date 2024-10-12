@@ -25,6 +25,8 @@ public class GraphicsEnviroment {
 	private static int _mainVbo;
 	private static int _mainEbo;
 
+	private static ShaderProgram _shaders;
+
 	public static void init () {
 		glClearColor(0f, 0f, 0f, 1f);
 
@@ -48,23 +50,25 @@ public class GraphicsEnviroment {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _mainEbo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _INDICES, GL_STATIC_DRAW);
 
-		ShaderProgram shaders = new ShaderProgram(
-				Paths.get("D:\\~iaq\\projects\\jecse\\res\\default-shaders\\vertex.vert"),
-				Paths.get("D:\\~iaq\\projects\\jecse\\res\\default-shaders\\fragment.frag")
+		_shaders = new ShaderProgram(
+				Paths.get("res/default-shaders/vertex.vert"),
+				Paths.get("res/default-shaders/fragment.frag")
 		);
 
-		Mat3f matrix = new Mat3f();
-		matrix.translate(1f, 0f);
-		matrix.scale(0.5f, 0.5f);
-
-		shaders.use();
-
-		int matrixUniform = glGetUniformLocation(shaders.getHandler(), "matrix");
-		glUniformMatrix3fv(matrixUniform, false, matrix.getMatrix());
+		_shaders.use();
 	}
 
-	public static void render () {
+	public static void render (Mat3f model, Mat3f view, Mat3f projection) {
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		int modelUf = glGetUniformLocation(_shaders.getHandler(), "model");
+		int viewUf = glGetUniformLocation(_shaders.getHandler(), "view");
+		int projectionUf = glGetUniformLocation(_shaders.getHandler(), "projection");
+
+		glUniformMatrix3fv(modelUf, false, model.getMatrix());
+		glUniformMatrix3fv(viewUf, false, view.getMatrix());
+		glUniformMatrix3fv(projectionUf, false, projection.getMatrix());
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 }

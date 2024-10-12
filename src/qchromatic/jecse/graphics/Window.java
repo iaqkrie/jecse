@@ -29,6 +29,9 @@ public final class Window {
 		_hwnd = glfwCreateWindow(size.x, size.y, title, 0, 0);
 		if (_hwnd == 0)
 			throw new RuntimeException("Window creation error!");
+
+		glfwMakeContextCurrent(_hwnd);
+		GL.createCapabilities();
 	}
 
 	public Vec2 getSize () {
@@ -62,9 +65,6 @@ public final class Window {
 	}
 
 	public void show () {
-		glfwMakeContextCurrent(_hwnd);
-		GL.createCapabilities();
-
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		glfwShowWindow(_hwnd);
 	}

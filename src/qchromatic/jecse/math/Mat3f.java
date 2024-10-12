@@ -4,7 +4,7 @@ package qchromatic.jecse.math;
  * 3x3 float matrix with <b>COLUMN-MAJOR</b> layout
  */
 public class Mat3f {
-	private float[] _matrix;
+	private final float[] _matrix;
 
 	public Mat3f () {
 		_matrix = new float[] {
@@ -12,6 +12,9 @@ public class Mat3f {
 				0f, 1f, 0f,
 				0f, 0f, 1f
 		};
+	}
+	public Mat3f (float[] matrix) {
+		_matrix = matrix.clone();
 	}
 
 	public float[] getMatrix () { return _matrix.clone(); }
@@ -25,7 +28,7 @@ public class Mat3f {
 		set(2, 1, get(2, 1) + y);
 	}
 
-	public void setTranslate (float x, float y) {
+	public void setTranslation (float x, float y) {
 		set (2, 0, x);
 		set (2, 1, y);
 	}
@@ -38,5 +41,13 @@ public class Mat3f {
 	public void setScale (float x, float y) {
 		set(0, 0, x);
 		set(1, 1, y);
+	}
+
+	public static Mat3f ortho (float left, float right, float bottom, float top) {
+		return new Mat3f(new float[] {
+				2 / (right - left), 0,                  0,
+				0,                  2 / (top - bottom), 0,
+				0,                  0,                  1
+		});
 	}
 }
