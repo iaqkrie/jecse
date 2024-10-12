@@ -12,8 +12,7 @@ public final class Game {
 		GraphicsEnviroment.init();
 	}
 
-	private void loop (long dtime) {
-	}
+	private void loop (long dtime) { }
 
 	private void render () {
 		GraphicsEnviroment.clear();
