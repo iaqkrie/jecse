@@ -1,13 +1,13 @@
 package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.math.Mat3f;
-import qchromatic.jecse.math.Vec2;
+import qchromatic.jecse.system.TextureManager;
 
 import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL33.*;
 
-public class GraphicsEnviroment {
+public final class GraphicsEnviroment {
 	private static final float[] _GRAPHICS_DATA = {
 			// pos     // tex
 			-1f,  1f,  0f, 0f, // tl
@@ -59,9 +59,15 @@ public class GraphicsEnviroment {
 	public static void clear () { glClear(GL_COLOR_BUFFER_BIT); }
 
 	public static void render (Mat3f model, Mat3f view, Mat3f projection, Texture texture) {
+		model = model == null ? new Mat3f() : model;
+		view = view == null ? new Mat3f() : view;
+		projection = projection == null ? new Mat3f() : projection;
+		texture = texture == null ? TextureManager.get(0) : texture;
+
 		int modelUf = glGetUniformLocation(_shaders.getHandler(), "model");
 		int viewUf = glGetUniformLocation(_shaders.getHandler(), "view");
 		int projectionUf = glGetUniformLocation(_shaders.getHandler(), "projection");
+		int textureUf = glGetUniformLocation(_shaders.getHandler(), "tex");
 
 		glUniformMatrix3fv(modelUf, false, model.getMatrix());
 		glUniformMatrix3fv(viewUf, false, view.getMatrix());
@@ -69,7 +75,6 @@ public class GraphicsEnviroment {
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture.texture);
-		int textureUf = glGetUniformLocation(_shaders.getHandler(), "tex");
 		glUniform1i(textureUf, 0);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

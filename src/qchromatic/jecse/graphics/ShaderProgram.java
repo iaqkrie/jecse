@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public class ShaderProgram {
+public final class ShaderProgram {
 	int handler;
 
 	public ShaderProgram (Path vertexShaderPath, Path fragmentShaderPath) {

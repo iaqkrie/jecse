@@ -12,7 +12,7 @@ public final class Window {
 	private static final Vec2 DEFAULT_SIZE = new Vec2(800, 450);
 	private static final String DEFAULT_TITLE = "jecse app";
 
-	private long _hwnd;
+	private final long _hwnd;
 
 	public Window () { this(DEFAULT_SIZE, DEFAULT_TITLE); }
 	public Window (String title) { this(DEFAULT_SIZE, title); }

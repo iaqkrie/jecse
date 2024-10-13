@@ -5,13 +5,13 @@ import qchromatic.jecse.graphics.Texture;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TextureManager {
+public final class TextureManager {
 	private static List<Texture> _textures;
 
 	public static void init () {
 		_textures = new ArrayList<>();
 
-		load(new Texture("res/texture/debug.png")); // TODO System check (unix or windows)
+		load(new Texture("res/texture/debug.png"));
 	}
 
 	public static int load (Texture texture) {

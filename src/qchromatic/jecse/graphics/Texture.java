@@ -6,6 +6,7 @@ import qchromatic.jecse.math.Vec2;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
@@ -26,7 +27,7 @@ public class Texture {
 			IntBuffer height = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
 
-			ByteBuffer image = stbi_load(path, width, height, channels, 4);
+			ByteBuffer image = stbi_load(Paths.get(path).toString(), width, height, channels, 4);
 			if (image == null) {
 				throw new RuntimeException("Failed to load a texture file: " + path);
 			}

@@ -10,8 +10,8 @@ public final class Game {
 	public Game () { _window = new Window(); }
 
 	private void init () {
-		GraphicsEnviroment.init();
 		TextureManager.init();
+		GraphicsEnviroment.init();
 	}
 
 	private void loop (long dtime) { }
