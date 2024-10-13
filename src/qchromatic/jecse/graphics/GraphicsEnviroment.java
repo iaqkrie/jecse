@@ -10,10 +10,10 @@ import static org.lwjgl.opengl.GL33.*;
 public class GraphicsEnviroment {
 	private static final float[] _GRAPHICS_DATA = {
 			// pos     // tex
-			-1f,  1f,  0f, 1f, // tl
-			 1f,  1f,  1f, 1f, // tr
-			-1f, -1f,  0f, 0f, // bl
-			 1f, -1f,  1f, 0f  // br
+			-1f,  1f,  0f, 0f, // tl
+			 1f,  1f,  1f, 0f, // tr
+			-1f, -1f,  0f, 1f, // bl
+			 1f, -1f,  1f, 1f  // br
 	};
 
 	private static final int[] _INDICES = {

@@ -33,13 +33,16 @@ public class Texture {
 
 			_size = new Vec2(width.get(), height.get());
 			_data = new byte[image.remaining()];
-			image.get(_data);
+			image.duplicate().get(_data);
 
 			stbi_image_free(image);
 		}
 	}
 
 	public void createOnGPU () {
+		if (texture != 0)
+			return;
+
 		texture = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

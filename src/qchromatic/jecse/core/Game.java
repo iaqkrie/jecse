@@ -2,6 +2,7 @@ package qchromatic.jecse.core;
 
 import qchromatic.jecse.graphics.GraphicsEnviroment;
 import qchromatic.jecse.graphics.Window;
+import qchromatic.jecse.system.TextureManager;
 
 public final class Game {
 	private final Window _window;
@@ -10,6 +11,7 @@ public final class Game {
 
 	private void init () {
 		GraphicsEnviroment.init();
+		TextureManager.init();
 	}
 
 	private void loop (long dtime) { }
@@ -20,6 +22,8 @@ public final class Game {
 
 	private void finalise () {
 		GraphicsEnviroment.finalise();
+
+		TextureManager.unloadTextures();
 	}
 
 	public void run () {
