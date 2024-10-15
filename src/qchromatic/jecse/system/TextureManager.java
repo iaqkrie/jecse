@@ -18,6 +18,9 @@ public final class TextureManager {
 		if (texture == null)
 			throw new RuntimeException("Texture is null!");
 
+		if (_textures.contains(texture))
+			return _textures.indexOf(texture);
+
 		int textureID = _textures.size();
 
 		texture.createOnGPU();

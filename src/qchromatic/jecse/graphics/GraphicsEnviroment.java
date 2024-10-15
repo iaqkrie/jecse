@@ -1,5 +1,6 @@
 package qchromatic.jecse.graphics;
 
+import qchromatic.jecse.core.Color;
 import qchromatic.jecse.math.Mat3f;
 import qchromatic.jecse.system.TextureManager;
 
@@ -58,20 +59,24 @@ public final class GraphicsEnviroment {
 
 	public static void clear () { glClear(GL_COLOR_BUFFER_BIT); }
 
-	public static void render (Mat3f model, Mat3f view, Mat3f projection, Texture texture) {
+	public static void render (Mat3f model, Mat3f view, Mat3f projection, Color color, Texture texture) {
 		model = model == null ? new Mat3f() : model;
 		view = view == null ? new Mat3f() : view;
 		projection = projection == null ? new Mat3f() : projection;
+		color = color == null ? Color.WHITE : color;
 		texture = texture == null ? TextureManager.get(0) : texture;
 
 		int modelUf = glGetUniformLocation(_shaders.getHandler(), "model");
 		int viewUf = glGetUniformLocation(_shaders.getHandler(), "view");
 		int projectionUf = glGetUniformLocation(_shaders.getHandler(), "projection");
+
+		int colorUf = glGetUniformLocation(_shaders.getHandler(), "color");
 		int textureUf = glGetUniformLocation(_shaders.getHandler(), "tex");
 
 		glUniformMatrix3fv(modelUf, false, model.getMatrix());
 		glUniformMatrix3fv(viewUf, false, view.getMatrix());
 		glUniformMatrix3fv(projectionUf, false, projection.getMatrix());
+		glUniform4f(colorUf, color.r, color.g, color.b, color.a);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture.texture);
