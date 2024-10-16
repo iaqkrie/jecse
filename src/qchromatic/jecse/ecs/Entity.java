@@ -14,6 +14,18 @@ public class Entity {
 		if (_components.containsKey(component.getClass()))
 			return;
 
+		for (Class<? extends Component> dependence : component.dependencies) {
+			if (_components.containsKey(dependence))
+				continue;
+
+			try {
+				addComponent(dependence.getConstructor().newInstance());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		component.entity = this;
 		_components.put(component.getClass(), component);
 	}
 

@@ -1,4 +1,4 @@
-package qchromatic.jecse.system;
+package qchromatic.jecse.core;
 
 import qchromatic.jecse.graphics.Texture;
 
@@ -29,7 +29,7 @@ public final class TextureManager {
 		return textureID;
 	}
 
-	public static Texture get (int id) {
+	public static Texture getTexture (int id) {
 		if (_textures.size() <= id)
 			throw new RuntimeException("No such texture id!");
 

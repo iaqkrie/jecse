@@ -2,7 +2,7 @@ package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.core.Color;
 import qchromatic.jecse.math.Mat3f;
-import qchromatic.jecse.system.TextureManager;
+import qchromatic.jecse.core.TextureManager;
 
 import java.nio.file.Paths;
 
@@ -64,7 +64,7 @@ public final class GraphicsEnviroment {
 		view = view == null ? new Mat3f() : view;
 		projection = projection == null ? new Mat3f() : projection;
 		color = color == null ? Color.WHITE : color;
-		texture = texture == null ? TextureManager.get(0) : texture;
+		texture = texture == null ? TextureManager.getTexture(0) : texture;
 
 		int modelUf = glGetUniformLocation(_shaders.getHandler(), "model");
 		int viewUf = glGetUniformLocation(_shaders.getHandler(), "view");
