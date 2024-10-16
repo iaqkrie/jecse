@@ -1,6 +1,8 @@
 package qchromatic.jecse.ecs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Entity {
@@ -36,11 +38,30 @@ public class Entity {
 		return null;
 	}
 
+	public <T extends Component> List<T> getChildComponentsOf (Class<T> componentClass) {
+		List<T> components = new ArrayList<>();
+		for (Component component : _components.values()) {
+			if (componentClass.isAssignableFrom(component.getClass()))
+				components.add(componentClass.cast(component));
+		}
+
+		return components;
+	}
+
 	public <T extends Component> void removeComponent (Class<T> componentClass) {
 		_components.remove(componentClass);
 	}
 
 	public boolean containsComponent (Class<? extends Component> componentClass) {
 		return _components.containsKey(componentClass);
+	}
+
+	public boolean containsChildComponentsOf (Class<? extends Component> componentClass) {
+		for (Component component : _components.values()) {
+			if (componentClass.isAssignableFrom(component.getClass()))
+				return true;
+		}
+
+		return false;
 	}
 }

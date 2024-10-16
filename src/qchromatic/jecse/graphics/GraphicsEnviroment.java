@@ -1,6 +1,7 @@
 package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.core.Color;
+import qchromatic.jecse.core.Game;
 import qchromatic.jecse.math.Mat3f;
 import qchromatic.jecse.core.TextureManager;
 
@@ -9,12 +10,14 @@ import java.nio.file.Paths;
 import static org.lwjgl.opengl.GL33.*;
 
 public final class GraphicsEnviroment {
+	public static final float DEFAULT_UNIT_SIZE = 100f;
+
 	private static final float[] _GRAPHICS_DATA = {
 			// pos     // tex
-			-1f,  1f,  0f, 0f, // tl
-			 1f,  1f,  1f, 0f, // tr
-			-1f, -1f,  0f, 1f, // bl
-			 1f, -1f,  1f, 1f  // br
+			-0.5f,  0.5f,  0f, 0f, // tl
+			 0.5f,  0.5f,  1f, 0f, // tr
+			-0.5f, -0.5f,  0f, 1f, // bl
+			 0.5f, -0.5f,  1f, 1f  // br
 	};
 
 	private static final int[] _INDICES = {
@@ -99,5 +102,19 @@ public final class GraphicsEnviroment {
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glDeleteBuffers(_mainEbo);
+	}
+
+	public static Mat3f getProjectionMatrix () {
+		float horizontal = Game.window.getSize().x / DEFAULT_UNIT_SIZE;
+		float vertical = Game.window.getSize().y / DEFAULT_UNIT_SIZE;
+
+		return Mat3f.ortho(-horizontal / 2, horizontal / 2, -vertical / 2, vertical / 2);
+	}
+
+	public static Mat3f getUIProjectionMatrix () {
+		float width = Game.window.getSize().x;
+		float height = Game.window.getSize().y;
+
+		return Mat3f.ortho(0, width, height, 0);
 	}
 }

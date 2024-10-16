@@ -61,7 +61,16 @@ public class Mat3f {
 
 	public void setRotation (float angle) {
 		float theta = (float) Math.toRadians(angle);
-		// TODO
+		float sin = (float) Math.sin(theta);
+		float cos = (float) Math.cos(theta);
+
+		Mat3f rotationMatrix = new Mat3f(new float[] {
+				 cos, sin, 0,
+				-sin, cos, 0,
+				 0,   0,   1
+		});
+
+		this.mul(rotationMatrix);
 	}
 
 	public static Mat3f ortho (float left, float right, float bottom, float top) {

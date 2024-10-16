@@ -1,11 +1,18 @@
 package qchromatic.jecse.graphics;
 
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL33;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
 import qchromatic.jecse.core.InputInfo;
 import qchromatic.jecse.math.Vec2;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -25,11 +32,15 @@ public final class Window {
 
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, 0);
-		glfwWindowHint(GLFW_RESIZABLE, 0);
+		glfwWindowHint(GLFW_RESIZABLE, 1);
 
 		_hwnd = glfwCreateWindow(size.x, size.y, title, 0, 0);
 		if (_hwnd == 0)
 			throw new RuntimeException("Window creation error!");
+
+		glfwSetFramebufferSizeCallback(_hwnd, (_, width, height) -> {
+			GL33.glViewport(0, 0, width, height);
+		});
 
 		glfwSetKeyCallback(_hwnd, (_, key, _, action, _) -> {
 			if (action == GLFW_PRESS)
@@ -54,6 +65,8 @@ public final class Window {
 		GL.createCapabilities();
 	}
 
+	public long getHandler () { return _hwnd; }
+
 	public Vec2 getSize () {
 		int[] width = new int[1];
 		int[] height = new int[1];
@@ -71,6 +84,26 @@ public final class Window {
 	}
 	public void setPosition (Vec2 position) { setPosition(position.x, position.y); }
 	public void setPosition (int x, int y) { glfwSetWindowPos(_hwnd, x, y); }
+
+	public void setIcon (String iconPath) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			IntBuffer width = stack.mallocInt(1);
+			IntBuffer height = stack.mallocInt(1);
+			IntBuffer channels = stack.mallocInt(1);
+
+			ByteBuffer icon = STBImage.stbi_load(iconPath, width, height, channels, 4);
+			if (icon == null) {
+				throw new RuntimeException("Failed to load icon image: " + STBImage.stbi_failure_reason());
+			}
+
+			GLFWImage.Buffer iconBuffer = GLFWImage.malloc(1);
+			iconBuffer.position(0).width(width.get(0)).height(height.get(0)).pixels(icon);
+
+			glfwSetWindowIcon(_hwnd, iconBuffer);
+
+			STBImage.stbi_image_free(icon);
+		}
+	}
 
 	public boolean shouldClose () {
 		return glfwWindowShouldClose(_hwnd);
