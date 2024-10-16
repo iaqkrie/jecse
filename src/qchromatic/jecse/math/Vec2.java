@@ -6,7 +6,7 @@ public class Vec2 {
 
 	public Vec2 () { this(0); }
 	public Vec2 (int xy) { this(xy, xy); }
-	public Vec2 (Vec2f other) { this((int)(other.x), (int)(other.y)); }
+	public Vec2 (Vec2f other) { this((int) (other.x), (int) (other.y)); }
 	public Vec2 (Vec2 other) { this(other.x, other.y); }
 	public Vec2 (int x, int y) {
 		this.x = x;
@@ -40,7 +40,7 @@ public class Vec2 {
 		return this;
 	}
 
-	public Vec2 scale (float factor) { return scale((int)factor); }
+	public Vec2 scale (float factor) { return scale((int) factor); }
 	public Vec2 scale (int factor) {
 		x *= factor;
 		y *= factor;
@@ -48,8 +48,8 @@ public class Vec2 {
 	}
 
 	public Vec2 pow (int p) {
-		x = (int)Math.pow(x, p);
-		y = (int)Math.pow(y, p);
+		x = (int) Math.pow(x, p);
+		y = (int) Math.pow(y, p);
 		return this;
 	}
 }

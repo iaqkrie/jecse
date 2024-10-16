@@ -2,6 +2,7 @@ package qchromatic.jecse.graphics;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import qchromatic.jecse.core.InputInfo;
 import qchromatic.jecse.math.Vec2;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -29,6 +30,25 @@ public final class Window {
 		_hwnd = glfwCreateWindow(size.x, size.y, title, 0, 0);
 		if (_hwnd == 0)
 			throw new RuntimeException("Window creation error!");
+
+		glfwSetKeyCallback(_hwnd, (_, key, _, action, _) -> {
+			if (action == GLFW_PRESS)
+				InputInfo.pressedKeys.add(key);
+			else if (action == GLFW_RELEASE)
+				InputInfo.pressedKeys.remove((Integer) key);
+		});
+
+		glfwSetMouseButtonCallback(_hwnd, (_, button, action, _) -> {
+			if (action == GLFW_PRESS)
+				InputInfo.pressedMouseButtons.add(button);
+			else if (action == GLFW_RELEASE)
+				InputInfo.pressedMouseButtons.remove((Integer) button);
+		});
+
+		glfwSetCursorPosCallback(_hwnd, (_, xpos, ypos) -> {
+			InputInfo.mousePosition.x = (float) xpos;
+			InputInfo.mousePosition.y = (float) ypos;
+		});
 
 		glfwMakeContextCurrent(_hwnd);
 		GL.createCapabilities();

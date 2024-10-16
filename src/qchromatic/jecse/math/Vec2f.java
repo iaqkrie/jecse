@@ -40,7 +40,7 @@ public class Vec2f {
 		return this;
 	}
 
-	public Vec2f scale (int factor) { return scale((float)factor); }
+	public Vec2f scale (int factor) { return scale((float) factor); }
 	public Vec2f scale (float factor) {
 		x *= factor;
 		y *= factor;
@@ -48,8 +48,8 @@ public class Vec2f {
 	}
 
 	public Vec2f pow (float p) {
-		x = (float)Math.pow(x, p);
-		y = (float)Math.pow(y, p);
+		x = (float) Math.pow(x, p);
+		y = (float) Math.pow(y, p);
 		return this;
 	}
 }
