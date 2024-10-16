@@ -1,6 +1,7 @@
 package qchromatic.jecse.core;
 
 import qchromatic.jecse.graphics.Texture;
+import qchromatic.jecse.math.Vec2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,20 @@ public final class TextureManager {
 	public static void init () {
 		_textures = new ArrayList<>();
 
-		load(new Texture("res/texture/debug.png"));
+		Texture debugTexture = new Texture(new Vec2(4, 4));
+		float base = 1f / 3f;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				float r = base * i;
+				float g = base * (3 - j);
+				float b = base * (3 - Math.max(i, (3 - j)));
+				float a = 1f;
+
+				debugTexture.setPixel(i, j, r, g, b, a);
+			}
+		}
+
+		load(debugTexture);
 	}
 
 	public static int load (Texture texture) {
@@ -37,7 +51,7 @@ public final class TextureManager {
 	}
 
 	public static void unloadTextures () {
-		for (Texture t : _textures)
-			t.deleteFromGPU();
+		for (Texture texture : _textures)
+			texture.deleteFromGPU();
 	}
 }

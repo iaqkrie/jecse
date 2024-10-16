@@ -3,6 +3,7 @@ package qchromatic.jecse.core;
 import qchromatic.jecse.graphics.GraphicsEnviroment;
 import qchromatic.jecse.graphics.Texture;
 import qchromatic.jecse.math.Mat3f;
+import qchromatic.jecse.math.Vec2;
 
 public class Sprite {
 	private Color _color;
@@ -22,4 +23,6 @@ public class Sprite {
 	public void setColor (Color color) {
 		_color = new Color(color);
 	}
+
+	public Texture getTexture () { return _texture; }
 }

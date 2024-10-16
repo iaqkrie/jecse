@@ -38,7 +38,6 @@ public final class Game {
 
 	public void run () {
 		init();
-		window.setIcon("res/jecse/jecse.png");
 		window.show();
 
 		long lastTime = System.nanoTime();

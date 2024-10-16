@@ -31,9 +31,14 @@ public class RenderSystem {
 			Vec2f eScale = entity.getComponent(Transform.class).scale;
 			float eRot = entity.getComponent(Transform.class).rotation;
 
+			float ppu = entity.getComponent(SpriteRenderer.class).pixelsPerUnit;
+			Vec2f ppuScale = new Vec2f();
+			ppuScale.x = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().x / ppu;
+			ppuScale.y = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().y / ppu;
+
 			Mat3f model = new Mat3f();
 			model.setTranslation(ePos.x, ePos.y);
-			model.setScale(eScale.x, eScale.y);
+			model.setScale(eScale.x * ppuScale.x, eScale.y * ppuScale.y);
 			model.setRotation(eRot);
 
 			Mat3f view = new Mat3f();
