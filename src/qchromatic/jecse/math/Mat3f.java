@@ -1,76 +1,37 @@
 package qchromatic.jecse.math;
 
-/**
- * 3x3 float matrix with <b>COLUMN-MAJOR</b> layout
- */
 public class Mat3f {
 	public static final int SIZE = 3;
+	public static final float[] UNIT_MATRIX = new float[] {
+			1f, 0f, 0f,
+			0f, 1f, 0f,
+			0f, 0f, 1f
+	};
 
 	private float[] _matrix;
 
-	public Mat3f () {
-		_matrix = new float[] {
-				1f, 0f, 0f,
-				0f, 1f, 0f,
-				0f, 0f, 1f
-		};
-	}
-	public Mat3f (float[] matrix) {
-		_matrix = matrix.clone();
-	}
+	public Mat3f () { this(UNIT_MATRIX); }
+	public Mat3f (float[] matrix) { _matrix = matrix.clone(); }
 
 	public float[] getMatrix () { return _matrix.clone(); }
 
-	public float get (int x, int y) { return _matrix[x * SIZE + y]; }
+	public float get (int x, int y) { return _matrix[y * SIZE + x]; }
 
-	public void set (int x, int y, float value) { _matrix[x * SIZE + y] = value; }
+	public void set (int x, int y, float value) { _matrix[y * SIZE + x] = value; }
 
-	public void mul (Mat3f other) {
+	public Mat3f mul (Mat3f other) {
 		float[] newMatix = new float[SIZE * SIZE];
 
 		for (int row = 0; row < SIZE; row++) {
 			for (int col = 0; col < SIZE; col++) {
-				newMatix[col * SIZE + row] = get(0, row) * other.get(col, 0) +
+				newMatix[row * SIZE + col] = get(0, row) * other.get(col, 0) +
 						                     get(1, row) * other.get(col, 1) +
 						                     get(2, row) * other.get(col, 2);
 			}
 		}
 
 		_matrix = newMatix;
-	}
-
-	public void translate (float x, float y) {
-		set(2, 0, get(2, 0) + x);
-		set(2, 1, get(2, 1) + y);
-	}
-
-	public void setTranslation (float x, float y) {
-		set (2, 0, x);
-		set (2, 1, y);
-	}
-
-	public void scale (float x, float y) {
-		set(0, 0, get(0, 0) * x);
-		set(1, 1, get(1, 1) * y);
-	}
-
-	public void setScale (float x, float y) {
-		set(0, 0, x);
-		set(1, 1, y);
-	}
-
-	public void setRotation (float angle) {
-		float theta = (float) Math.toRadians(angle);
-		float sin = (float) Math.sin(theta);
-		float cos = (float) Math.cos(theta);
-
-		Mat3f rotationMatrix = new Mat3f(new float[] {
-				 cos, sin, 0,
-				-sin, cos, 0,
-				 0,   0,   1
-		});
-
-		this.mul(rotationMatrix);
+		return this;
 	}
 
 	public static Mat3f ortho (float left, float right, float bottom, float top) {

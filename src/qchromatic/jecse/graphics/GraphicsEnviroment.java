@@ -4,46 +4,13 @@ import qchromatic.jecse.core.Color;
 import qchromatic.jecse.core.Game;
 import qchromatic.jecse.math.Mat3f;
 import qchromatic.jecse.core.TextureManager;
+import qchromatic.jecse.util.ResourceLoader;
 
 import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL33.*;
 
 public final class GraphicsEnviroment {
-	public static final String DEFAULT_VERTEX_SHADER_SOURCE =
-			"""
-			#version 330
-			
-			layout(location = 0) in vec2 aPos;
-			layout(location = 1) in vec2 aTexCoord;
-			
-			out vec2 texCoord;
-			
-			uniform mat3 model;
-			uniform mat3 view;
-			uniform mat3 projection;
-			
-			void main() {
-			    vec3 tPos = projection * view * model * vec3(aPos, 1);
-			    gl_Position = vec4(tPos.xy, 0, 1);
-			
-			    texCoord = aTexCoord;
-			}
-			""";
-	public static final String DEFAULT_FRAGMENT_SHADER_SOURCE =
-			"""
-			#version 330
-			
-			in vec2 texCoord;
-			
-			uniform vec4 color;
-			uniform sampler2D tex;
-			
-			void main() {
-			    gl_FragColor = color * texture(tex, texCoord);
-			}
-			""";
-
 	public static final float DEFAULT_UNIT_SIZE = 100f;
 
 	private static final float[] _GRAPHICS_DATA = {
@@ -87,8 +54,8 @@ public final class GraphicsEnviroment {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _INDICES, GL_STATIC_DRAW);
 
 		_shaders = new ShaderProgram(
-				DEFAULT_VERTEX_SHADER_SOURCE,
-				DEFAULT_FRAGMENT_SHADER_SOURCE
+				ResourceLoader.loadFromJar("/assets/shaders/vertex.vert"),
+				ResourceLoader.loadFromJar("/assets/shaders/fragment.frag")
 		);
 
 		_shaders.use();
@@ -110,9 +77,9 @@ public final class GraphicsEnviroment {
 		int colorUf = glGetUniformLocation(_shaders.getHandler(), "color");
 		int textureUf = glGetUniformLocation(_shaders.getHandler(), "tex");
 
-		glUniformMatrix3fv(modelUf, false, model.getMatrix());
-		glUniformMatrix3fv(viewUf, false, view.getMatrix());
-		glUniformMatrix3fv(projectionUf, false, projection.getMatrix());
+		glUniformMatrix3fv(modelUf, true, model.getMatrix());
+		glUniformMatrix3fv(viewUf, true, view.getMatrix());
+		glUniformMatrix3fv(projectionUf, true, projection.getMatrix());
 		glUniform4f(colorUf, color.r, color.g, color.b, color.a);
 
 		glActiveTexture(GL_TEXTURE0);

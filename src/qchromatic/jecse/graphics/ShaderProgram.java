@@ -3,6 +3,7 @@ package qchromatic.jecse.graphics;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.PublicKey;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -18,6 +19,9 @@ public final class ShaderProgram {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	public ShaderProgram (byte[] vertexShaderSource, byte[] fragmentShaderSource) {
+		this(new String(vertexShaderSource), new String(fragmentShaderSource));
 	}
 	public ShaderProgram (String vertexShaderSource, String fragmentShaderSource) {
 		createShaders(vertexShaderSource, fragmentShaderSource);

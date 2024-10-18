@@ -36,15 +36,45 @@ public class RenderSystem {
 			ppuScale.x = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().x / ppu;
 			ppuScale.y = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().y / ppu;
 
+			Mat3f s;
+			Mat3f r;
+			Mat3f t;
+
 			Mat3f model = new Mat3f();
-			model.setTranslation(ePos.x, ePos.y);
-			model.setScale(eScale.x * ppuScale.x, eScale.y * ppuScale.y);
-			model.setRotation(eRot);
+			s = new Mat3f(new float[] {
+					eScale.x * ppuScale.x, 0,                     0,
+					0,                     eScale.y * ppuScale.y, 0,
+					0,                     0,                     1
+			});
+			r = new Mat3f(new float[] {
+					(float) Math.cos(Math.toRadians(eRot)), (float) -Math.sin(Math.toRadians(eRot)), 0,
+					(float) Math.sin(Math.toRadians(eRot)), (float) Math.cos(Math.toRadians(eRot)),  0,
+					0,                                      0,                                       1
+			});
+			t = new Mat3f(new float[] {
+					1, 0, ePos.x,
+					0, 1, ePos.y,
+					0, 0, 1
+			});
+			model.mul(t).mul(r).mul(s);
 
 			Mat3f view = new Mat3f();
-			view.setTranslation(-camPos.x, -camPos.y);
-			view.setScale(camZoom, camZoom);
-			view.setRotation(-camRot);
+			s = new Mat3f(new float[] {
+					camZoom, 0,       0,
+					0,       camZoom, 0,
+					0,       0,       1
+			});
+			r = new Mat3f(new float[] {
+					(float) Math.cos(Math.toRadians(-camRot)), (float) -Math.sin(Math.toRadians(-camRot)), 0,
+					(float) Math.sin(Math.toRadians(-camRot)), (float) Math.cos(Math.toRadians(-camRot)),  0,
+					0,                                         0,                                          1
+			});
+			t = new Mat3f(new float[] {
+					1, 0, -camPos.x,
+					0, 1, -camPos.y,
+					0, 0, 1
+			});
+			view.mul(t).mul(r).mul(s);
 
 			Mat3f projection = GraphicsEnviroment.getProjectionMatrix();
 
