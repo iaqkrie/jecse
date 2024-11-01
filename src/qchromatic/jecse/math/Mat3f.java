@@ -1,5 +1,8 @@
 package qchromatic.jecse.math;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Mat3f {
 	public static final int SIZE = 3;
 	public static final float[] UNIT_MATRIX = new float[] {
@@ -18,6 +21,32 @@ public class Mat3f {
 	public float get (int x, int y) { return _matrix[y * SIZE + x]; }
 
 	public void set (int x, int y, float value) { _matrix[y * SIZE + x] = value; }
+
+	public float minor (int x, int y) {
+		List<Float> tempMatrixList = new ArrayList<>();
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				if (i == y || j == x)
+					continue;
+
+				tempMatrixList.add(get(j, i));
+			}
+		}
+		float[] tempMatrixArray = new float[4];
+		for (int i = 0; i < tempMatrixArray.length; i++)
+			tempMatrixArray[i] = tempMatrixList.get(i);
+
+		return new Mat2f(tempMatrixArray).determinant();
+	}
+
+	public float determinant () {
+		return  get(0, 0) * get(1, 1) * get(2, 2) +
+				get(1, 0) * get(2, 1) * get(0, 2) +
+				get(0, 1) * get(1, 2) * get(2, 0) -
+				get(2, 0) * get(1, 1) * get(0, 2) -
+				get(1, 0) * get(0, 1) * get(2, 2) -
+				get(2, 1) * get(1, 2) * get(0, 0);
+	}
 
 	public Mat3f mul (Mat3f other) {
 		float[] newMatix = new float[SIZE * SIZE];
