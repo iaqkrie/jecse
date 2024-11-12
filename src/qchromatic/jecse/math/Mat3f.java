@@ -22,6 +22,16 @@ public class Mat3f {
 
 	public void set (int x, int y, float value) { _matrix[y * SIZE + x] = value; }
 
+	public Mat3f transpose () {
+		float[] newMatrix = new float[] {
+				get(0, 0), get(0, 1), get(0, 2),
+				get(1, 0), get(1, 1), get(1, 2),
+				get(2, 0), get(2, 1), get(2, 2)
+		};
+
+		return new Mat3f(newMatrix);
+	}
+
 	public float minor (int x, int y) {
 		List<Float> tempMatrixList = new ArrayList<>();
 		for (int i = 0; i < SIZE; i++) {
@@ -48,6 +58,22 @@ public class Mat3f {
 				get(2, 1) * get(1, 2) * get(0, 0);
 	}
 
+	public Mat3f inverse () {
+		float det = determinant();
+		if (det == 0)
+			throw new RuntimeException("Matrix is not invertible");
+
+		float[] cofactorArray = new float[SIZE * SIZE];
+		for (int y = 0; y < SIZE; y++) {
+			for (int x = 0; x < SIZE; x++) {
+				cofactorArray[y * SIZE + x] = (float)Math.pow(-1, x + y) * minor(x, y);
+			}
+		}
+
+		Mat3f adjoint = new Mat3f(cofactorArray).transpose();
+		return adjoint.mul(1f / det);
+	}
+
 	public Mat3f mul (Mat3f other) {
 		float[] newMatix = new float[SIZE * SIZE];
 
@@ -60,6 +86,16 @@ public class Mat3f {
 		}
 
 		_matrix = newMatix;
+		return this;
+	}
+
+	public Mat3f mul (float multiplier) {
+		float[] newMatrix = new float[SIZE * SIZE];
+		for (int i = 0; i < newMatrix.length; i++) {
+			newMatrix[i] = _matrix[i] * multiplier;
+		}
+
+		_matrix = newMatrix;
 		return this;
 	}
 

@@ -1,7 +1,7 @@
 package qchromatic.jecse.component;
 
 import qchromatic.jecse.core.Sprite;
-import qchromatic.jecse.ecs.Component;
+import qchromatic.jecse.core.Component;
 
 public class SpriteRenderer extends Component {
 	public Sprite sprite;

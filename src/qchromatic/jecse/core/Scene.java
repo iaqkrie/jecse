@@ -1,8 +1,5 @@
 package qchromatic.jecse.core;
 
-import qchromatic.jecse.ecs.Component;
-import qchromatic.jecse.ecs.Entity;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

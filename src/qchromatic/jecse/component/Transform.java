@@ -1,6 +1,6 @@
 package qchromatic.jecse.component;
 
-import qchromatic.jecse.ecs.Component;
+import qchromatic.jecse.core.Component;
 import qchromatic.jecse.math.Vec2f;
 
 public class Transform extends Component {

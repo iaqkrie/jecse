@@ -1,6 +1,6 @@
 package qchromatic.jecse.component;
 
-import qchromatic.jecse.ecs.Component;
+import qchromatic.jecse.core.Component;
 
 import java.util.function.Consumer;
 

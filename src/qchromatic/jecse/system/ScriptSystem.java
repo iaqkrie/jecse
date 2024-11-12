@@ -2,7 +2,7 @@ package qchromatic.jecse.system;
 
 import qchromatic.jecse.component.Script;
 import qchromatic.jecse.core.SceneManager;
-import qchromatic.jecse.ecs.Entity;
+import qchromatic.jecse.core.Entity;
 
 public class ScriptSystem {
 	public static void init () {

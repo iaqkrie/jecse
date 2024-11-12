@@ -1,4 +1,4 @@
-package qchromatic.jecse.ecs;
+package qchromatic.jecse.core;
 
 import java.util.ArrayList;
 import java.util.List;
