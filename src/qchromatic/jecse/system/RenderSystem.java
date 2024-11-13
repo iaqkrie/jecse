@@ -5,6 +5,7 @@ import qchromatic.jecse.component.SpriteRenderer;
 import qchromatic.jecse.component.Transform;
 import qchromatic.jecse.core.SceneManager;
 import qchromatic.jecse.core.Entity;
+import qchromatic.jecse.entity.Camera;
 import qchromatic.jecse.graphics.GraphicsEnviroment;
 import qchromatic.jecse.math.Mat3f;
 import qchromatic.jecse.math.Vec2f;
@@ -21,9 +22,6 @@ public class RenderSystem {
 			return;
 
 		Entity camera = SceneManager.getActiveScene().getEntitiesWithComponent(CameraComponent.class)[0];
-		Vec2f camPos = camera.getComponent(Transform.class).position();
-		float camRot = camera.getComponent(Transform.class).rotation();
-		float camZoom = camera.getComponent(CameraComponent.class).zoom();
 
 		Entity[] entities = SceneManager.getActiveScene().getEntitiesWithComponent(SpriteRenderer.class);
 		for (Entity entity : entities) {
@@ -58,23 +56,7 @@ public class RenderSystem {
 			});
 			model.mul(t).mul(r).mul(s);
 
-			Mat3f view = new Mat3f();
-			s = new Mat3f(new float[] {
-					camZoom, 0,       0,
-					0,       camZoom, 0,
-					0,       0,       1
-			});
-			r = new Mat3f(new float[] {
-					(float) Math.cos(Math.toRadians(-camRot)), (float) -Math.sin(Math.toRadians(-camRot)), 0,
-					(float) Math.sin(Math.toRadians(-camRot)), (float) Math.cos(Math.toRadians(-camRot)),  0,
-					0,                                         0,                                          1
-			});
-			t = new Mat3f(new float[] {
-					1, 0, -camPos.x,
-					0, 1, -camPos.y,
-					0, 0, 1
-			});
-			view.mul(t).mul(r).mul(s);
+			Mat3f view = Camera.getViewMatrix(camera);
 
 			Mat3f projection = GraphicsEnviroment.getProjectionMatrix();
 

@@ -37,8 +37,8 @@ public final class Game {
 	}
 
 	public void run () {
-		init();
 		window.show();
+		init();
 
 		long lastTime = System.nanoTime();
 		while (!window.shouldClose()) {

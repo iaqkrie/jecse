@@ -1,5 +1,7 @@
 package qchromatic.jecse.core;
 
+import qchromatic.jecse.entity.Camera;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

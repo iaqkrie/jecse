@@ -13,7 +13,7 @@ public class ScriptSystem {
 
 		for (Entity entity : entities) {
 			for (Script script : entity.getChildComponentsOf(Script.class))
-				script.init.run();
+				script.init();
 		}
 	}
 
@@ -25,7 +25,7 @@ public class ScriptSystem {
 
 		for (Entity entity : entities) {
 			for (Script script : entity.getChildComponentsOf(Script.class))
-				script.loop.accept(dtime);
+				script.loop(dtime);
 		}
 	}
 }

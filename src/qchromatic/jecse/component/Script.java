@@ -4,7 +4,7 @@ import qchromatic.jecse.core.Component;
 
 import java.util.function.Consumer;
 
-public class Script extends Component {
-	public Runnable init;
-	public Consumer<Float> loop;
+public abstract class Script extends Component {
+	public void init () { }
+	public void loop (float dtime) { }
 }
