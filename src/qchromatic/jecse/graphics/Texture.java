@@ -28,9 +28,27 @@ public class Texture {
 			IntBuffer channels = stack.mallocInt(1);
 
 			ByteBuffer image = stbi_load(Paths.get(path).toString(), width, height, channels, 4);
-			if (image == null) {
+			if (image == null)
 				throw new RuntimeException("Failed to load a texture file: " + path);
-			}
+
+			_size = new Vec2(width.get(), height.get());
+			_data = new byte[image.remaining()];
+			image.duplicate().get(_data);
+
+			stbi_image_free(image);
+		}
+	}
+	public Texture (byte[] data) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			IntBuffer width = stack.mallocInt(1);
+			IntBuffer height = stack.mallocInt(1);
+			IntBuffer channels = stack.mallocInt(1);
+
+			ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
+			buffer.put(data).flip();
+			ByteBuffer image = stbi_load_from_memory(buffer, width, height, channels, 4);
+			if (image == null)
+				throw new RuntimeException("Failed to load a texture file");
 
 			_size = new Vec2(width.get(), height.get());
 			_data = new byte[image.remaining()];

@@ -21,20 +21,20 @@ public class RenderSystem {
 			return;
 
 		Entity camera = SceneManager.getActiveScene().getEntitiesWithComponent(CameraComponent.class)[0];
-		Vec2f camPos = camera.getComponent(Transform.class).position;
-		float camRot = camera.getComponent(Transform.class).rotation;
-		float camZoom = camera.getComponent(CameraComponent.class).zoom;
+		Vec2f camPos = camera.getComponent(Transform.class).position();
+		float camRot = camera.getComponent(Transform.class).rotation();
+		float camZoom = camera.getComponent(CameraComponent.class).zoom();
 
 		Entity[] entities = SceneManager.getActiveScene().getEntitiesWithComponent(SpriteRenderer.class);
 		for (Entity entity : entities) {
-			Vec2f ePos = entity.getComponent(Transform.class).position;
-			Vec2f eScale = entity.getComponent(Transform.class).scale;
-			float eRot = entity.getComponent(Transform.class).rotation;
+			Vec2f ePos = entity.getComponent(Transform.class).position();
+			Vec2f eScale = entity.getComponent(Transform.class).scale();
+			float eRot = entity.getComponent(Transform.class).rotation();
 
-			float ppu = entity.getComponent(SpriteRenderer.class).pixelsPerUnit;
+			float ppu = entity.getComponent(SpriteRenderer.class).pixelsPerUnit();
 			Vec2f ppuScale = new Vec2f();
-			ppuScale.x = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().x / ppu;
-			ppuScale.y = entity.getComponent(SpriteRenderer.class).sprite.getTexture().getSize().y / ppu;
+			ppuScale.x = entity.getComponent(SpriteRenderer.class).sprite().getTexture().getSize().x / ppu;
+			ppuScale.y = entity.getComponent(SpriteRenderer.class).sprite().getTexture().getSize().y / ppu;
 
 			Mat3f s;
 			Mat3f r;
@@ -78,7 +78,7 @@ public class RenderSystem {
 
 			Mat3f projection = GraphicsEnviroment.getProjectionMatrix();
 
-			entity.getComponent(SpriteRenderer.class).sprite.draw(model, view, projection);
+			entity.getComponent(SpriteRenderer.class).sprite().draw(model, view, projection);
 		}
 	}
 }
