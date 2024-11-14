@@ -3,7 +3,6 @@ package qchromatic.jecse.graphics;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.PublicKey;
 
 import static org.lwjgl.opengl.GL20.*;
 

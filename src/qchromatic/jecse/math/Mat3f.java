@@ -89,6 +89,13 @@ public class Mat3f {
 		return this;
 	}
 
+	public Vec2f mul (Vec2f vector) {
+		float x = get(0, 0) * vector.x + get(1, 0) * vector.y + get(2, 0);
+		float y = get(0, 1) * vector.x + get(1, 1) * vector.y + get(2, 1);
+
+		return new Vec2f(x, y);
+	}
+
 	public Mat3f mul (float multiplier) {
 		float[] newMatrix = new float[SIZE * SIZE];
 		for (int i = 0; i < newMatrix.length; i++) {

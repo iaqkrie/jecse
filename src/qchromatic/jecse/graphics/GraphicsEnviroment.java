@@ -6,8 +6,6 @@ import qchromatic.jecse.math.Mat3f;
 import qchromatic.jecse.core.TextureManager;
 import qchromatic.jecse.util.ResourceLoader;
 
-import java.nio.file.Paths;
-
 import static org.lwjgl.opengl.GL33.*;
 
 public final class GraphicsEnviroment {
