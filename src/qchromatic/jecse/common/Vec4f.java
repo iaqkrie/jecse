@@ -32,15 +32,14 @@ public class Vec4f {
 		this.w = w;
 	}
 
+	public Vec4f () { this(0f); }
+	public Vec4f (float xyzw) { this(xyzw, xyzw, xyzw, xyzw); }
 	public Vec4f (float x, float y, float z, float w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
-	public Vec4f (float x, float y, float z) { this(x, y, z, 0); }
-	public Vec4f (float x, float y) { this(x, y, 0, 0); }
-	public Vec4f (float xyzw) { this(xyzw, xyzw, xyzw, xyzw); }
 
 	public Vec4f add (Vec4f other) {
 		if (other == null) return this;

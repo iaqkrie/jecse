@@ -21,13 +21,13 @@ public class Vec3 {
 		this.z = z;
 	}
 
+	public Vec3 () { this(0); }
+	public Vec3 (int xyz) { this(xyz, xyz, xyz); }
 	public Vec3 (int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
-	public Vec3 (int xyz) { this(xyz, xyz, xyz); }
-	public Vec3 () { this(0); }
 
 	public Vec3 add (Vec3 other) {
 		if (other == null) return this;

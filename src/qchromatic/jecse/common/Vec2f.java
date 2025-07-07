@@ -11,12 +11,12 @@ public class Vec2f {
 		y = other.y;
 	}
 
+	public Vec2f () { this(0f); }
+	public Vec2f (float xy) { this(xy, xy); }
 	public Vec2f (float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
-	public Vec2f (float xy) { this(xy, xy); }
-	public Vec2f () { this(0); }
 
 	public Vec2f add (Vec2f other) {
 		if (other == null) return this;

@@ -32,15 +32,14 @@ public class Vec4 {
 		this.w = w;
 	}
 
+	public Vec4 () { this(0); }
+	public Vec4 (int xyzw) { this(xyzw, xyzw, xyzw, xyzw); }
 	public Vec4 (int x, int y, int z, int w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
-	public Vec4 (int x, int y, int z) { this(x, y, z, 0); }
-	public Vec4 (int x, int y) { this(x, y, 0, 0); }
-	public Vec4 (int xyzw) { this(xyzw, xyzw, xyzw, xyzw); }
 
 	public Vec4 add (Vec4 other) {
 		if (other == null) return this;

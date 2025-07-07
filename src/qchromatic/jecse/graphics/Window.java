@@ -34,6 +34,7 @@ public final class Window {
 		if (!glfwInit())
 			throw new RuntimeException("Failed to init GLFW"); // TODO
 
+		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_RESIZABLE, _resizable ? 1 : 0);
 		glfwWindowHint(GLFW_VISIBLE, 0);
 	}
