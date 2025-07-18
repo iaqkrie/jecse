@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import static org.lwjgl.opengl.GL20.*;
 
 public final class ShaderProgram {
-	int handler;
+	private int _handler;
 
 	public ShaderProgram (Path vertexShaderPath, Path fragmentShaderPath) {
 		try {
@@ -37,26 +37,18 @@ public final class ShaderProgram {
 		glCompileShader(fragmentShader);
 		checkShaderCompilation(fragmentShader);
 
-		handler = glCreateProgram();
-		glAttachShader(handler, vertexShader);
-		glAttachShader(handler, fragmentShader);
-		glLinkProgram(handler);
-		checkProgramLinking(handler);
+		_handler = glCreateProgram();
+		glAttachShader(_handler, vertexShader);
+		glAttachShader(_handler, fragmentShader);
+		glLinkProgram(_handler);
+		checkProgramLinking(_handler);
 
-		glDetachShader(handler, vertexShader);
-		glDetachShader(handler, fragmentShader);
+		glDetachShader(_handler, vertexShader);
+		glDetachShader(_handler, fragmentShader);
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 	}
-
-	public static void clearActiveProgram() { glUseProgram(0); }
-
-	public void use () { glUseProgram(handler); }
-
-	public int getHandler () { return handler; }
-
-	public void delete () { glDeleteProgram(handler); }
 
 	private void checkShaderCompilation(int shader) {
 		int compiled = glGetShaderi(shader, GL_COMPILE_STATUS);
@@ -73,4 +65,24 @@ public final class ShaderProgram {
 			throw new RuntimeException("Program linking error: " + log);
 		}
 	}
+
+	public static void stopUsingProgram () { glUseProgram(0); }
+
+	public int getUniformLocation (String name) {
+		return glGetUniformLocation(_handler, name);
+	}
+
+	public void setUniform (int location, float value) {
+		glUniform1f(location, value);
+	}
+
+	public void getLocationAndSetUniform (String name, float value) {
+		setUniform(getUniformLocation(name), value);
+	}
+
+	public void use () { glUseProgram(_handler); }
+
+	public int getHandler () { return _handler; }
+
+	public void delete () { glDeleteProgram(_handler); }
 }
