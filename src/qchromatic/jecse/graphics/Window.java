@@ -1,7 +1,6 @@
 package qchromatic.jecse.graphics;
 
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.glfw.GLFW.*;
 
