@@ -66,19 +66,12 @@ public final class ShaderProgram {
 		}
 	}
 
-	public static void stopUsingProgram () { glUseProgram(0); }
+	public static void stopUsingProgram() { glUseProgram(0); }
 
-	public int getUniformLocation (String name) {
-		return glGetUniformLocation(_handler, name);
-	}
+	public int getUniformLocation (String name) { return glGetUniformLocation(_handler, name); }
 
-	public void setUniform (int location, float value) {
-		glUniform1f(location, value);
-	}
-
-	public void getLocationAndSetUniform (String name, float value) {
-		setUniform(getUniformLocation(name), value);
-	}
+	public void setUniform (int location, float value) { glUniform1f(location, value); }
+	public void setUniform (String name, float value) { glUniform1f(getUniformLocation(name), value); }
 
 	public void use () { glUseProgram(_handler); }
 

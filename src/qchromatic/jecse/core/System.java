@@ -1,5 +1,6 @@
 package qchromatic.jecse.core;
 
 public abstract class System {
-	// TODO
+	public void init () { }
+	public void loop (float dtime) { }
 }

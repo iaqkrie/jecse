@@ -11,6 +11,7 @@ public class Entity {
 	}
 
 	public <T extends Component> void addComponent (T component) {
+		component.entity = this;
 		_components.put(component.getClass(), component);
 	}
 

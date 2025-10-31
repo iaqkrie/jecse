@@ -1,3 +1,2 @@
 # jecse
-Java game engine (rather a framework, but this is temporary).
-More information will come later!
+Lightweight java game engine. More information will come later!
