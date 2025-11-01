@@ -10,9 +10,11 @@ public class Entity {
 		_components = new HashMap<>();
 	}
 
-	public <T extends Component> void addComponent (T component) {
+	public <T extends Component> Entity addComponent (T component) {
 		component.entity = this;
 		_components.put(component.getClass(), component);
+
+		return this;
 	}
 
 	public <T extends Component> T getComponent (Class<T> componentClass) {

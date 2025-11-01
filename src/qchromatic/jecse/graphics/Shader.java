@@ -6,10 +6,10 @@ import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public final class ShaderProgram {
+public final class Shader {
 	private int _handler;
 
-	public ShaderProgram (Path vertexShaderPath, Path fragmentShaderPath) {
+	public Shader (Path vertexShaderPath, Path fragmentShaderPath) {
 		try {
 			String vss = new String(Files.readAllBytes(vertexShaderPath));
 			String fss = new String(Files.readAllBytes(fragmentShaderPath));
@@ -19,10 +19,10 @@ public final class ShaderProgram {
 			throw new RuntimeException(e);
 		}
 	}
-	public ShaderProgram (byte[] vertexShaderSource, byte[] fragmentShaderSource) {
+	public Shader (byte[] vertexShaderSource, byte[] fragmentShaderSource) {
 		this(new String(vertexShaderSource), new String(fragmentShaderSource));
 	}
-	public ShaderProgram (String vertexShaderSource, String fragmentShaderSource) {
+	public Shader (String vertexShaderSource, String fragmentShaderSource) {
 		createShaders(vertexShaderSource, fragmentShaderSource);
 	}
 
@@ -66,16 +66,10 @@ public final class ShaderProgram {
 		}
 	}
 
-	public static void stopUsingProgram() { glUseProgram(0); }
+	public void use () { glUseProgram(_handler); }
+	public static void stopUsing() { glUseProgram(0); }
 
 	public int getUniformLocation (String name) { return glGetUniformLocation(_handler, name); }
-
-	public void setUniform (int location, float value) { glUniform1f(location, value); }
-	public void setUniform (String name, float value) { glUniform1f(getUniformLocation(name), value); }
-
-	public void use () { glUseProgram(_handler); }
-
-	public int getHandler () { return _handler; }
 
 	public void delete () { glDeleteProgram(_handler); }
 }

@@ -1,25 +1,44 @@
 package qchromatic.jecse.system;
 
-import qchromatic.jecse.component.MeshRenderer;
+import qchromatic.jecse.component.MeshComponent;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
 import qchromatic.jecse.engine.Mesh;
-import qchromatic.jecse.graphics.ShaderProgram;
+import qchromatic.jecse.engine.SceneManager;
+import qchromatic.jecse.graphics.Shader;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL30.*;
 
 public class RenderSystem extends System {
-	private Entity _camera;
 	private List<Entity> _entities;
 
+	@Override
+	public void init () {
+		updateEntitiesList();
+	}
+
+	@Override
+	public void loop (float dtime) {
+		for (Entity entity : _entities)
+			renderEntity(entity);
+	}
+
+	@Override
+	public void update () {
+		updateEntitiesList();
+	}
+
+	private void updateEntitiesList () {
+		_entities = List.of(scene.getEntitiesWithComponent(MeshComponent.class));
+	}
+
 	private void renderEntity (Entity entity) {
-		Mesh mesh = entity.getComponent(MeshRenderer.class).mesh();
-		ShaderProgram shader = entity.getComponent(MeshRenderer.class).shader();
+		MeshComponent meshComponent = entity.getComponent(MeshComponent.class);
+		Mesh mesh = meshComponent.mesh();
+		Shader shader = meshComponent.shader();
+
 		shader.use();
 
 		int vaoId = createVAO(mesh);

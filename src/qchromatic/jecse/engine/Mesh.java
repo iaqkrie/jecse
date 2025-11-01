@@ -20,18 +20,4 @@ public class Mesh {
 		_triangles = triangles.clone();
 		return this;
 	}
-
-	public static Mesh createTriangleMesh () {
-		float[] vertices = {
-				-1f, -1f, 0f,
-				 1f, -1f, 0f,
-				 0f,  1f, 0f
-		};
-
-		int[] triangles = {
-				0, 1, 2
-		};
-
-		return new Mesh(vertices, triangles);
-	}
 }
