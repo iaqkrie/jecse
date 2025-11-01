@@ -46,17 +46,11 @@ public final class Vec3 {
 		return this;
 	}
 
-	public Vec3 multiplied (float scalar) {
-		return new Vec3(x * scalar, y * scalar, z * scalar);
-	}
+	public Vec3 multiplied (float scalar) { return new Vec3(x * scalar, y * scalar, z * scalar); }
 
-	public float length () {
-		return (float) Math.sqrt(x * x + y * y + z * z);
-	}
+	public float length () { return (float) Math.sqrt(x * x + y * y + z * z); }
 
-	public float lenghtSquared () {
-		return x * x + y * y + z * z;
-	}
+	public float lenghtSquared () { return x * x + y * y + z * z; }
 
 	public Vec3 normalize () {
 		float len = length();

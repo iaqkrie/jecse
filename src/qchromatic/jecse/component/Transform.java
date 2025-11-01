@@ -18,15 +18,10 @@ public class Transform extends Component {
 	}
 	// endregion
 
-	// region get-set
+	public Vec3 position () { return new Vec3(_position); }
 	public Transform position (Vec3 position) {
 		_position = new Vec3(position);
 
 		return this;
 	}
-
-	public Vec3 position () {
-		return new Vec3(_position);
-	}
-	// endregion
 }
