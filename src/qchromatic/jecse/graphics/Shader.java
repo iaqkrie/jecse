@@ -1,5 +1,7 @@
 package qchromatic.jecse.graphics;
 
+import qchromatic.jecse.common.Mat4;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,6 +66,10 @@ public final class Shader {
 			String log = glGetProgramInfoLog(program);
 			throw new RuntimeException("Program linking error: " + log);
 		}
+	}
+
+	public void setUniform (String name, Mat4 value) {
+		glUniformMatrix4fv(getUniformLocation(name), true, value.getMatrix());
 	}
 
 	public void use () { glUseProgram(_handler); }

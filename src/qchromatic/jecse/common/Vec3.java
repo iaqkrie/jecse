@@ -70,6 +70,30 @@ public final class Vec3 {
 		return new Vec3(this);
 	}
 
+	public Vec3 cross(Vec3 other) {
+		if (other == null) return this;
+
+		float newX = this.y * other.z - this.z * other.y;
+		float newY = this.z * other.x - this.x * other.z;
+		float newZ = this.x * other.y - this.y * other.x;
+
+		this.x = newX;
+		this.y = newY;
+		this.z = newZ;
+
+		return this;
+	}
+
+	public Vec3 crossed(Vec3 other) {
+		if (other == null) return new Vec3(this);
+
+		return new Vec3(
+				this.y * other.z - this.z * other.y,
+				this.z * other.x - this.x * other.z,
+				this.x * other.y - this.y * other.x
+		);
+	}
+
 	public float dot (Vec3 other) {
 		if (other == null) return 0f;
 

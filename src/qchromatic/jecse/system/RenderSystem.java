@@ -1,22 +1,31 @@
 package qchromatic.jecse.system;
 
+import qchromatic.jecse.component.CameraComponent;
 import qchromatic.jecse.component.MeshComponent;
+import qchromatic.jecse.component.TransformComponent;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
 import qchromatic.jecse.engine.Mesh;
-import qchromatic.jecse.engine.SceneManager;
 import qchromatic.jecse.graphics.Shader;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL30.*;
 
 public class RenderSystem extends System {
 	private List<Entity> _entities;
+	private Entity _camera;
+
+	private Map<Entity, Integer> _vaoCache;
 
 	@Override
 	public void init () {
 		updateEntitiesList();
+		_camera = scene.getEntitiesWithComponent(CameraComponent.class)[0];
+
+		_vaoCache = new HashMap<>();
 	}
 
 	@Override
@@ -36,12 +45,28 @@ public class RenderSystem extends System {
 
 	private void renderEntity (Entity entity) {
 		MeshComponent meshComponent = entity.getComponent(MeshComponent.class);
+		TransformComponent transform = entity.getComponent(TransformComponent.class);
+
+		if (meshComponent == null || transform == null) return;
+
+		CameraComponent cameraComponent = _camera.getComponent(CameraComponent.class);
+
 		Mesh mesh = meshComponent.mesh();
 		Shader shader = meshComponent.shader();
 
 		shader.use();
 
-		int vaoId = createVAO(mesh);
+		shader.setUniform("model", transform.getModelMatrix());
+		shader.setUniform("view", cameraComponent.getViewMatrix());
+		shader.setUniform("projection", cameraComponent.getProjectionMatrix());
+
+		int vaoId;
+		if (_vaoCache.containsKey(entity))
+			vaoId = _vaoCache.get(entity);
+		else {
+			vaoId = createVAO(mesh);
+			_vaoCache.put(entity, vaoId);
+		}
 
 		glBindVertexArray(vaoId);
 		glDrawElements(GL_TRIANGLES, mesh.triangles().length, GL_UNSIGNED_INT, 0);
