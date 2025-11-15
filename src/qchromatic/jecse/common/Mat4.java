@@ -4,9 +4,7 @@ public class Mat4 {
 	private float[] _matrix;
 
 	// region ctors
-	public Mat4 (float[] matrix) {
-		_matrix = matrix.clone();
-	}
+	public Mat4 (float[] matrix) { _matrix = matrix.clone(); }
 
 	public Mat4 () {
 		_matrix = new float[16];
@@ -14,9 +12,7 @@ public class Mat4 {
 	}
 	// endregion
 
-	public float[] getMatrix () {
-		return _matrix.clone();
-	}
+	public float[] getMatrix () { return _matrix.clone(); }
 
 	public float get (int x, int y) { return _matrix[y * 4 + x]; }
 	public void set (int x, int y, float value) { _matrix[y * 4 + x] = value; }
