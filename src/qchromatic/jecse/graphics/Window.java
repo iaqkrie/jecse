@@ -21,6 +21,9 @@ public final class Window {
 	private boolean _resizable;
 	private boolean _vsync;
 
+	public Window () { this(DEAFULT_WIDTH, DEAFULT_HEIGHT, DEFAULT_TITLE); }
+	public Window (String title) { this(DEAFULT_WIDTH, DEAFULT_HEIGHT, title); }
+	public Window (int width, int height) { this(width, height, DEFAULT_TITLE); }
 	public Window (int width, int height, String title) {
 		_width = width;
 		_height = height;
@@ -32,8 +35,6 @@ public final class Window {
 		createWindow();
 		initOpenGL();
 	}
-	public Window () { this(DEAFULT_WIDTH, DEAFULT_HEIGHT, DEFAULT_TITLE); }
-	public Window (int width, int height) { this(width, height, DEFAULT_TITLE); }
 
 	private void initGLFW () {
 		if (!glfwInit())

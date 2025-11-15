@@ -23,7 +23,10 @@ public class RenderSystem extends System {
 	@Override
 	public void init () {
 		updateEntitiesList();
-		_camera = scene.getEntitiesWithComponent(CameraComponent.class)[0];
+
+		_camera = scene.getEntitiesWithComponents(
+				TransformComponent.class,
+				CameraComponent.class)[0];
 
 		_vaoCache = new HashMap<>();
 	}
@@ -40,7 +43,9 @@ public class RenderSystem extends System {
 	}
 
 	private void updateEntitiesList () {
-		_entities = List.of(scene.getEntitiesWithComponent(MeshComponent.class));
+		_entities = List.of(scene.getEntitiesWithComponents(
+				TransformComponent.class,
+				MeshComponent.class));
 	}
 
 	private void renderEntity (Entity entity) {
