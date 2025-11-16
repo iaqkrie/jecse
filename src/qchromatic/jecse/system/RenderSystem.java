@@ -61,9 +61,9 @@ public class RenderSystem extends System {
 
 		shader.use();
 
-		shader.setUniform("model", transform.getModelMatrix());
-		shader.setUniform("view", cameraComponent.getViewMatrix());
-		shader.setUniform("projection", cameraComponent.getProjectionMatrix());
+		shader.setUniform("model", transform.getModelMatrix().transpose());
+		shader.setUniform("view", cameraComponent.getViewMatrix().transpose());
+		shader.setUniform("projection", cameraComponent.getProjectionMatrix().transpose());
 
 		int vaoId;
 		if (_vaoCache.containsKey(entity))

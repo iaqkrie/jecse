@@ -23,7 +23,7 @@ public class CameraComponent extends Component {
 		_orthoSize = 5f;
 
 		_aspectRatio = 16f / 9f;
-		_near = 0.1f;
+		_near = 1f;
 		_far = 100f;
 
 		_projectionMatrix = new Mat4();

@@ -14,8 +14,8 @@ public class Mat4 {
 
 	public float[] getMatrix () { return _matrix.clone(); }
 
-	public float get (int x, int y) { return _matrix[y * 4 + x]; }
-	public void set (int x, int y, float value) { _matrix[y * 4 + x] = value; }
+	public float get (int row, int col) { return _matrix[row * 4 + col]; }
+	public void set (int row, int col, float value) { _matrix[row * 4 + col] = value; }
 
 	public Mat4 identity () {
 		for (int i = 0; i < 16; i++) _matrix[i] = 0f;
@@ -47,9 +47,9 @@ public class Mat4 {
 			for (int j = 0; j < 4; j++) {
 				float sum = 0f;
 				for (int k = 0; k < 4; k++)
-					sum += get(k, i) * other.get(j, k);
+					sum += get(i, k) * other.get(k, j);
 
-				result[i * 4 + j] = sum; // TODO
+				result[i * 4 + j] = sum;
 			}
 		}
 
@@ -60,9 +60,9 @@ public class Mat4 {
 	public static Mat4 translation (Vec3 position) { return translation(position.x, position.y, position.z); }
 	public static Mat4 translation (float x, float y, float z) {
 		Mat4 result = new Mat4();
-		result.set(3, 0, x);
-		result.set(3, 1, y);
-		result.set(3, 2, z);
+		result.set(0, 3, x);
+		result.set(1, 3, y);
+		result.set(2, 3, z);
 		return result;
 	}
 
@@ -83,8 +83,8 @@ public class Mat4 {
 
 		Mat4 result = new Mat4();
 		result.set(1, 1, cos);
-		result.set(1, 2, -sin);
-		result.set(2, 1, sin);
+		result.set(2, 1, -sin);
+		result.set(1, 2, sin);
 		result.set(2, 2, cos);
 		return result;
 	}
@@ -95,8 +95,8 @@ public class Mat4 {
 
 		Mat4 result = new Mat4();
 		result.set(0, 0, cos);
-		result.set(0, 2, sin);
-		result.set(2, 0, -sin);
+		result.set(2, 0, sin);
+		result.set(0, 2, -sin);
 		result.set(2, 2, cos);
 		return result;
 	}
@@ -107,8 +107,8 @@ public class Mat4 {
 
 		Mat4 result = new Mat4();
 		result.set(0, 0, cos);
-		result.set(0, 1, -sin);
-		result.set(1, 0, sin);
+		result.set(1, 0, -sin);
+		result.set(0, 1, sin);
 		result.set(1, 1, cos);
 		return result;
 	}
@@ -130,8 +130,8 @@ public class Mat4 {
 		result.set(0, 0, f / aspect);
 		result.set(1, 1, f);
 		result.set(2, 2, (far + near) / (near - far));
-		result.set(2, 3, -1f);
-		result.set(3, 2, (2f * far * near) / (near - far));
+		result.set(2, 3, (2f * far * near) / (near - far));
+		result.set(3, 2, -1f);
 		return result;
 	}
 
@@ -143,7 +143,7 @@ public class Mat4 {
 		result.set(0, 0, 2f / width);
 		result.set(1, 1, 2f / height);
 		result.set(2, 2, 2f / (near - far));
-		result.set(3, 2, (near + far) / (near - far));
+		result.set(2, 3, (near + far) / (near - far));
 		return result;
 	}
 }

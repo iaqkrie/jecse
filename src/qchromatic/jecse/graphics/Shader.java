@@ -69,7 +69,7 @@ public final class Shader {
 	}
 
 	public void setUniform (String name, Mat4 value) {
-		glUniformMatrix4fv(getUniformLocation(name), true, value.getMatrix());
+		glUniformMatrix4fv(getUniformLocation(name), false, value.getMatrix());
 	}
 
 	public void use () { glUseProgram(_handler); }

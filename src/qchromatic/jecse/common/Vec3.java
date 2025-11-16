@@ -50,7 +50,7 @@ public final class Vec3 {
 
 	public float length () { return (float) Math.sqrt(x * x + y * y + z * z); }
 
-	public float lenghtSquared () { return x * x + y * y + z * z; }
+	public float lengthSquared () { return x * x + y * y + z * z; }
 
 	public Vec3 normalize () {
 		float len = length();

@@ -28,9 +28,9 @@ public final class Scene {
 			system.loop(dtime);
 	}
 
-	public void addEntity (String id, Entity entity) {
-		if (entity == null || _entities.containsKey(id)) return;
-		_entities.put(id, entity);
+	public void addEntity (Entity entity) {
+		if (entity == null || _entities.containsKey(entity.id())) return;
+		_entities.put(entity.id(), entity);
 
 		for (System system : _systems.values())
 			system.update();
@@ -47,6 +47,21 @@ public final class Scene {
 		for (Entity entity : _entities.values()) {
 			if (entity.hasComponent(componentClass))
 				entities.add(entity);
+		}
+
+		return entities.toArray(new Entity[0]);
+	}
+
+	public Entity[] getEntitiesWithComponentInheritance (Class<? extends Component> componentClass) {
+		List<Entity> entities = new ArrayList<>();
+
+		for (Entity entity : _entities.values()) {
+			for (Component component : entity.getAllComponents()) {
+				if (componentClass.isAssignableFrom(component.getClass())) {
+					entities.add(entity);
+					break;
+				}
+			}
 		}
 
 		return entities.toArray(new Entity[0]);

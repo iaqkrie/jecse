@@ -1,14 +1,13 @@
 package qchromatic.jecse.graphics;
 
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class Window {
-	private static final int DEAFULT_WIDTH = 800;
-	private static final int DEAFULT_HEIGHT = 450;
+	private static final int DEFAULT_WIDTH = 800;
+	private static final int DEFAULT_HEIGHT = 450;
 	private static final String DEFAULT_TITLE = "jecse app";
 	private static final boolean DEFAULT_RESIZABLE = true;
 	private static final boolean DEFAULT_VSYNC = false;
@@ -21,8 +20,8 @@ public final class Window {
 	private boolean _resizable;
 	private boolean _vsync;
 
-	public Window () { this(DEAFULT_WIDTH, DEAFULT_HEIGHT, DEFAULT_TITLE); }
-	public Window (String title) { this(DEAFULT_WIDTH, DEAFULT_HEIGHT, title); }
+	public Window () { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_TITLE); }
+	public Window (String title) { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, title); }
 	public Window (int width, int height) { this(width, height, DEFAULT_TITLE); }
 	public Window (int width, int height, String title) {
 		_width = width;
