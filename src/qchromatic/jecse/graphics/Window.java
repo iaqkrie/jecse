@@ -1,6 +1,7 @@
 package qchromatic.jecse.graphics;
 
 import org.lwjgl.opengl.GL;
+import qchromatic.jecse.engine.Input;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -33,6 +34,7 @@ public final class Window {
 		initGLFW();
 		createWindow();
 		initOpenGL();
+		setupCallbacks();
 	}
 
 	private void initGLFW () {
@@ -69,6 +71,22 @@ public final class Window {
 			_width = newW;
 			_height = newH;
 			glViewport(0, 0, _width, _height);
+		});
+
+		glfwSetKeyCallback(_hwnd, (window, key, scancode, action, mods) -> {
+			Input.setKeyState(key, action != GLFW_RELEASE);
+		});
+
+		glfwSetMouseButtonCallback(_hwnd, (window, button, action, mods) -> {
+			Input.setMouseButtonState(button, action != GLFW_RELEASE);
+		});
+
+		glfwSetCursorPosCallback(_hwnd, (window, xpos, ypos) -> {
+			Input.setMousePosition((float) xpos, (float) ypos);
+		});
+
+		glfwSetScrollCallback(_hwnd, (window, xoffset, yoffset) -> {
+			Input.setScrollOffset((float) xoffset, (float) yoffset);
 		});
 	}
 

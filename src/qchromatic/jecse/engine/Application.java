@@ -4,7 +4,7 @@ import qchromatic.jecse.graphics.Window;
 
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
-public class Application {
+public final class Application {
 	private final Window _window;
 
 	public Application () { _window = new Window(); }
@@ -22,6 +22,7 @@ public class Application {
 
 			float currentTime = (float) glfwGetTime();
 			SceneManager.getActiveScene().loop(currentTime - lastFrameTime);
+			Input.update();
 			_window.update();
 
 			lastFrameTime = currentTime;
