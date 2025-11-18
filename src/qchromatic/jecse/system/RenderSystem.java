@@ -5,6 +5,7 @@ import qchromatic.jecse.component.MeshComponent;
 import qchromatic.jecse.component.TransformComponent;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
+import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Mesh;
 import qchromatic.jecse.graphics.Shader;
 
@@ -57,13 +58,14 @@ public class RenderSystem extends System {
 		CameraComponent cameraComponent = _camera.getComponent(CameraComponent.class);
 
 		Mesh mesh = meshComponent.mesh();
-		Shader shader = meshComponent.shader();
+		Material material = meshComponent.material();
+		material.use();
 
-		shader.use();
+		Shader shader = material.getShader();
 
-		shader.setUniform("model", transform.getModelMatrix().transpose());
-		shader.setUniform("view", cameraComponent.getViewMatrix().transpose());
-		shader.setUniform("projection", cameraComponent.getProjectionMatrix().transpose());
+		shader.setUniform("u_model", transform.getModelMatrix().transpose());
+		shader.setUniform("u_view", cameraComponent.getViewMatrix().transpose());
+		shader.setUniform("u_projection", cameraComponent.getProjectionMatrix().transpose());
 
 		int vaoId;
 		if (_vaoCache.containsKey(entity))
@@ -86,8 +88,11 @@ public class RenderSystem extends System {
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);
 		glBufferData(GL_ARRAY_BUFFER, mesh.vertices(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * Float.BYTES, 0);
 		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+		glEnableVertexAttribArray(1);
 
 		int eboId = glGenBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);

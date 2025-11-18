@@ -1,12 +1,13 @@
 package qchromatic.jecse.component;
 
 import qchromatic.jecse.core.Component;
+import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Mesh;
 import qchromatic.jecse.graphics.Shader;
 
 public class MeshComponent extends Component {
 	private Mesh _mesh;
-	private Shader _shader;
+	private Material _material;
 
 	public Mesh mesh () { return _mesh; }
 	public MeshComponent mesh (Mesh mesh) {
@@ -14,9 +15,9 @@ public class MeshComponent extends Component {
 		return this;
 	}
 
-	public Shader shader () { return _shader; }
-	public MeshComponent shader (Shader shader) {
-		_shader = shader;
+	public Material material () { return _material; }
+	public MeshComponent material (Material material) {
+		_material = material;
 		return this;
 	}
 }

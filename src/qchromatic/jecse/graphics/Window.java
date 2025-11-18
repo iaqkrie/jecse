@@ -60,7 +60,7 @@ public final class Window {
 		if (_vsync)
 			glfwSwapInterval(1);
 
-		glClearColor(0f, 0f, 0f, 1f);
+		glClearColor(0.2f, 0.1f, 0.2f, 1f);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

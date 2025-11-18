@@ -1,6 +1,7 @@
 package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.common.Mat4;
+import qchromatic.jecse.common.Vec4;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,6 +69,12 @@ public final class Shader {
 		}
 	}
 
+	public void setUniform (String name, Vec4 value) {
+		glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
+	}
+	public void setUniform (String name, int value) {
+		glUniform1i(getUniformLocation(name), value);
+	}
 	public void setUniform (String name, Mat4 value) {
 		glUniformMatrix4fv(getUniformLocation(name), false, value.getMatrix());
 	}
