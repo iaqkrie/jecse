@@ -1,17 +1,15 @@
 package qchromatic.jecse.system;
 
 import qchromatic.jecse.component.CameraComponent;
-import qchromatic.jecse.component.MeshComponent;
-import qchromatic.jecse.component.TransformComponent;
+import qchromatic.jecse.component.MeshRenderer;
+import qchromatic.jecse.component.Transform;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
 import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Mesh;
 import qchromatic.jecse.graphics.Shader;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.opengl.GL30.*;
 
@@ -19,17 +17,13 @@ public class RenderSystem extends System {
 	private List<Entity> _entities;
 	private Entity _camera;
 
-	private Map<Entity, Integer> _vaoCache;
-
 	@Override
 	public void init () {
 		updateEntitiesList();
 
 		_camera = scene.getEntitiesWithComponents(
-				TransformComponent.class,
+				Transform.class,
 				CameraComponent.class)[0];
-
-		_vaoCache = new HashMap<>();
 	}
 
 	@Override
@@ -45,20 +39,20 @@ public class RenderSystem extends System {
 
 	private void updateEntitiesList () {
 		_entities = List.of(scene.getEntitiesWithComponents(
-				TransformComponent.class,
-				MeshComponent.class));
+				Transform.class,
+				MeshRenderer.class));
 	}
 
 	private void renderEntity (Entity entity) {
-		MeshComponent meshComponent = entity.getComponent(MeshComponent.class);
-		TransformComponent transform = entity.getComponent(TransformComponent.class);
+		MeshRenderer meshRenderer = entity.getComponent(MeshRenderer.class);
+		Transform transform = entity.getComponent(Transform.class);
 
-		if (meshComponent == null || transform == null) return;
+		if (meshRenderer == null || transform == null) return;
 
 		CameraComponent cameraComponent = _camera.getComponent(CameraComponent.class);
 
-		Mesh mesh = meshComponent.mesh();
-		Material material = meshComponent.material();
+		Mesh mesh = meshRenderer.mesh();
+		Material material = meshRenderer.material();
 		material.use();
 
 		Shader shader = material.getShader();
@@ -67,12 +61,10 @@ public class RenderSystem extends System {
 		shader.setUniform("u_view", cameraComponent.getViewMatrix().transpose());
 		shader.setUniform("u_projection", cameraComponent.getProjectionMatrix().transpose());
 
-		int vaoId;
-		if (_vaoCache.containsKey(entity))
-			vaoId = _vaoCache.get(entity);
-		else {
+		int vaoId = meshRenderer.getVao();
+		if (vaoId == -1) {
 			vaoId = createVAO(mesh);
-			_vaoCache.put(entity, vaoId);
+			meshRenderer.setVao(vaoId);
 		}
 
 		glBindVertexArray(vaoId);

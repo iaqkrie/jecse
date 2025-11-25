@@ -79,7 +79,7 @@ public class CameraComponent extends Component {
 	}
 
 	private void updateViewMatrix () {
-		TransformComponent transform = entity.getComponent(TransformComponent.class);
+		Transform transform = entity.getComponent(Transform.class);
 		Mat4 inverseRotation = Mat4.rotation(transform.rotation()).transpose();
 		Mat4 inverseTranslation = Mat4.translation(transform.position().multiplied(-1f));
 

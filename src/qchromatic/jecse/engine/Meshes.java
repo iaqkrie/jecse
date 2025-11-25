@@ -17,10 +17,10 @@ public final class Meshes {
 
 	public static Mesh quad () {
 		float[] vertices = {
-				-0.5f,  0.5f, 0f,		0f, 0f,
-				-0.5f, -0.5f, 0f,		0f, 1f,
-				 0.5f,  0.5f, 0f,		1f, 0f,
-				 0.5f, -0.5f, 0f,		1f, 1f
+				-0.5f,  0.5f, 0f, 0f, 0f,
+				-0.5f, -0.5f, 0f, 0f, 1f,
+				 0.5f,  0.5f, 0f, 1f, 0f,
+				 0.5f, -0.5f, 0f, 1f, 1f
 		};
 
 		int[] triangles = {
@@ -33,14 +33,10 @@ public final class Meshes {
 
 	public static Mesh cube () {
 		float[] vertices = {
-				// 0								// 1
-				-0.5f,  0.5f, -0.5f,	0f, 0f,		0.5f,  0.5f, -0.5f,		1f, 0f,
-				// 2								// 3
-				-0.5f,  0.5f,  0.5f,	0f, 1f,		0.5f,  0.5f,  0.5f,		1f, 1f,
-				// 4								// 5
-				-0.5f, -0.5f, -0.5f,	0f, 1f,		0.5f, -0.5f, -0.5f,		1f, 1f,
-				// 6								// 7
-				-0.5f, -0.5f,  0.5f,	0f, 0f,		0.5f, -0.5f,  0.5f,		1f, 0f
+				-0.5f,  0.5f, -0.5f, 0f, 0f, 	0.5f,  0.5f, -0.5f, 1f, 0f,
+				-0.5f,  0.5f,  0.5f, 0f, 1f, 	0.5f,  0.5f,  0.5f, 1f, 1f,
+				-0.5f, -0.5f, -0.5f, 0f, 1f, 	0.5f, -0.5f, -0.5f, 1f, 1f,
+				-0.5f, -0.5f,  0.5f, 0f, 0f, 	0.5f, -0.5f,  0.5f, 1f, 0f
 		};
 
 		int[] triangles = {
