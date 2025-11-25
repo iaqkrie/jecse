@@ -1,9 +1,10 @@
 package qchromatic.jecse.component;
 
 import qchromatic.jecse.common.Mat4;
+import qchromatic.jecse.common.Vec3;
 import qchromatic.jecse.core.Component;
 
-public class CameraComponent extends Component {
+public class Camera extends Component {
 	private boolean _ortho;
 
 	private float _fov;
@@ -16,7 +17,7 @@ public class CameraComponent extends Component {
 	private Mat4 _viewMatrix;
 	private Mat4 _projectionMatrix;
 
-	public CameraComponent () {
+	public Camera () {
 		_ortho = false;
 
 		_fov = 60f;
@@ -31,37 +32,37 @@ public class CameraComponent extends Component {
 	}
 
 	public boolean ortho () { return _ortho; }
-	public CameraComponent ortho (boolean ortho) {
+	public Camera ortho (boolean ortho) {
 		_ortho = ortho;
 		return this;
 	}
 
 	public float fov () { return _fov; }
-	public CameraComponent fov (float fov) {
+	public Camera fov (float fov) {
 		_fov = fov;
 		return this;
 	}
 
 	public float orthoSize () { return _orthoSize; }
-	public CameraComponent orthoSize (float orthoSize) {
+	public Camera orthoSize (float orthoSize) {
 		_orthoSize = orthoSize;
 		return this;
 	}
 
 	public float aspectRatio () { return _aspectRatio; }
-	public CameraComponent aspectRatio (float aspectRatio) {
+	public Camera aspectRatio (float aspectRatio) {
 		_aspectRatio = aspectRatio;
 		return this;
 	}
 
 	public float near () { return _near; }
-	public CameraComponent near (float near) {
+	public Camera near (float near) {
 		_near = near;
 		return this;
 	}
 
 	public float far () { return _far; }
-	public CameraComponent far (float far) {
+	public Camera far (float far) {
 		_far = far;
 		return this;
 	}

@@ -90,6 +90,19 @@ public final class Window {
 		});
 	}
 
+	public void setCursorNormal () {
+		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	public void setCursorDisabled () {
+		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+	public void setCursorHidden () {
+		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	}
+	public void setCursorCaptured () {
+		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+	}
+
 	public void show () { glfwShowWindow(_hwnd); }
 	public void hide () { glfwHideWindow(_hwnd); }
 

@@ -40,6 +40,17 @@ public class Mat4 {
 		return this;
 	}
 
+	public Mat4 transposed () {
+		Mat4 result = new Mat4();
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				result.set(i, j, get(j, i));
+			}
+		}
+
+		return result;
+	}
+
 	public Mat4 mul (Mat4 other) {
 		float[] result = new float[16];
 

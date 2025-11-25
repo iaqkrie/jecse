@@ -1,6 +1,6 @@
 package qchromatic.jecse.system;
 
-import qchromatic.jecse.component.CameraComponent;
+import qchromatic.jecse.component.Camera;
 import qchromatic.jecse.component.MeshRenderer;
 import qchromatic.jecse.component.Transform;
 import qchromatic.jecse.core.Entity;
@@ -15,15 +15,15 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class RenderSystem extends System {
 	private List<Entity> _entities;
-	private Entity _camera;
+	private Entity _cameraEntity;
 
 	@Override
 	public void init () {
 		updateEntitiesList();
 
-		_camera = scene.getEntitiesWithComponents(
+		_cameraEntity = scene.getEntitiesWithComponents(
 				Transform.class,
-				CameraComponent.class)[0];
+				Camera.class)[0];
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class RenderSystem extends System {
 
 		if (meshRenderer == null || transform == null) return;
 
-		CameraComponent cameraComponent = _camera.getComponent(CameraComponent.class);
+		Camera camera = _cameraEntity.getComponent(Camera.class);
 
 		Mesh mesh = meshRenderer.mesh();
 		Material material = meshRenderer.material();
@@ -57,9 +57,9 @@ public class RenderSystem extends System {
 
 		Shader shader = material.getShader();
 
-		shader.setUniform("u_model", transform.getModelMatrix().transpose());
-		shader.setUniform("u_view", cameraComponent.getViewMatrix().transpose());
-		shader.setUniform("u_projection", cameraComponent.getProjectionMatrix().transpose());
+		shader.setUniform("u_model", transform.getModelMatrix().transposed());
+		shader.setUniform("u_view", camera.getViewMatrix().transposed());
+		shader.setUniform("u_projection", camera.getProjectionMatrix().transposed());
 
 		int vaoId = meshRenderer.getVao();
 		if (vaoId == -1) {
