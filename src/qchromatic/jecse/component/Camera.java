@@ -1,6 +1,7 @@
 package qchromatic.jecse.component;
 
 import qchromatic.jecse.common.Mat4;
+import qchromatic.jecse.common.Quaternion;
 import qchromatic.jecse.common.Vec3;
 import qchromatic.jecse.core.Component;
 
@@ -81,12 +82,15 @@ public class Camera extends Component {
 
 	private void updateViewMatrix () {
 		Transform transform = entity.getComponent(Transform.class);
-		Mat4 inverseRotation = Mat4.rotation(transform.rotation()).transpose();
-		Mat4 inverseTranslation = Mat4.translation(transform.position().multiplied(-1f));
 
-		_viewMatrix.identity()
-				.mul(inverseRotation)
-				.mul(inverseTranslation);
+		Quaternion invRotation = transform.rotation().conjugated();
+		Vec3 invPosition = transform.position().multiplied(-1f);
+
+//		Mat4 inverseRotation = Mat4.rotation(transform.rotation()).transpose();
+//		Mat4 inverseTranslation = Mat4.translation(transform.position().multiplied(-1f));
+
+		_viewMatrix = invRotation.toMat4()
+				.mul(Mat4.translation(invPosition));
 	}
 
 	private void updateProjectionMatrix () {

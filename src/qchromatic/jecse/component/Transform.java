@@ -1,12 +1,13 @@
 package qchromatic.jecse.component;
 
 import qchromatic.jecse.common.Mat4;
+import qchromatic.jecse.common.Quaternion;
 import qchromatic.jecse.common.Vec3;
 import qchromatic.jecse.core.Component;
 
 public class Transform extends Component {
 	private Vec3 _position;
-	private Vec3 _rotation;
+	private Quaternion _rotation;
 	private Vec3 _scale;
 
 	private Mat4 _modelMatrix;
@@ -17,7 +18,7 @@ public class Transform extends Component {
 		if (other == null) return;
 
 		_position = new Vec3(other._position);
-		_rotation = new Vec3(other._rotation);
+		_rotation = new Quaternion(other._rotation);
 		_scale = new Vec3(other._scale);
 
 		_modelMatrix = new Mat4().identity();
@@ -26,7 +27,7 @@ public class Transform extends Component {
 
 	public Transform () {
 		_position = new Vec3();
-		_rotation = new Vec3();
+		_rotation = new Quaternion();
 		_scale = new Vec3(1f);
 
 		_modelMatrix = new Mat4().identity();
@@ -42,10 +43,10 @@ public class Transform extends Component {
 		return this;
 	}
 
-	public Vec3 rotation () { return new Vec3(_rotation); }
-    public Transform rotation (float x, float y, float z) { return rotation(new Vec3(x, y, z)); }
-	public Transform rotation (Vec3 rotation) {
-		_rotation = new Vec3(rotation);
+	public Quaternion rotation () { return new Quaternion(_rotation); }
+    public Transform rotation (float x, float y, float z) { return rotation(Quaternion.euler(x, y, z)); }
+	public Transform rotation (Quaternion rotation) {
+		_rotation = new Quaternion(rotation);
 		_dirty = true;
 		return this;
 	}
@@ -70,7 +71,8 @@ public class Transform extends Component {
 	private void updateModelMatrix () {
 		_modelMatrix.identity()
 				.mul(Mat4.translation(_position))
-				.mul(Mat4.rotation(_rotation))
+				//.mul(Mat4.rotation(_rotation))
+				.mul(_rotation.toMat4())
 				.mul(Mat4.scale(_scale));
 	}
 }
