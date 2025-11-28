@@ -86,9 +86,6 @@ public class Camera extends Component {
 		Quaternion invRotation = transform.rotation().conjugated();
 		Vec3 invPosition = transform.position().multiplied(-1f);
 
-//		Mat4 inverseRotation = Mat4.rotation(transform.rotation()).transpose();
-//		Mat4 inverseTranslation = Mat4.translation(transform.position().multiplied(-1f));
-
 		_viewMatrix = invRotation.toMat4()
 				.mul(Mat4.translation(invPosition));
 	}

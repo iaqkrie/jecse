@@ -71,7 +71,6 @@ public class Transform extends Component {
 	private void updateModelMatrix () {
 		_modelMatrix.identity()
 				.mul(Mat4.translation(_position))
-				//.mul(Mat4.rotation(_rotation))
 				.mul(_rotation.toMat4())
 				.mul(Mat4.scale(_scale));
 	}

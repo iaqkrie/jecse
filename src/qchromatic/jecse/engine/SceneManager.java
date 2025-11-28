@@ -1,6 +1,8 @@
 package qchromatic.jecse.engine;
 
 public final class SceneManager {
+	private SceneManager () {}
+
 	private static Scene _activeScene;
 
 	public static Scene getActiveScene () {

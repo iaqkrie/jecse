@@ -3,6 +3,8 @@ package qchromatic.jecse.engine;
 import qchromatic.jecse.common.Vec2;
 
 public final class Input {
+	private Input () { }
+
 	private static final int MAX_KEYS = 512;
 	private static final int MAX_MOUSE_BUTTONS = 16;
 
