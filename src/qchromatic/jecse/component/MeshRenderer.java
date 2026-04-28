@@ -8,8 +8,6 @@ public class MeshRenderer extends Component {
 	private Mesh _mesh;
 	private Material _material;
 
-	private int _vaoId = -1;
-
 	public Mesh mesh () { return _mesh; }
 	public MeshRenderer mesh (Mesh mesh) {
 		_mesh = mesh;
@@ -21,7 +19,4 @@ public class MeshRenderer extends Component {
 		_material = material;
 		return this;
 	}
-
-	public int getVao () { return _vaoId; }
-	public void setVao (int vaoId) { _vaoId = vaoId; }
 }

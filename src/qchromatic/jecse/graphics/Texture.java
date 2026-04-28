@@ -1,12 +1,13 @@
 package qchromatic.jecse.graphics;
 
 import org.lwjgl.BufferUtils;
+import qchromatic.jecse.core.Disposable;
 
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL13.*;
 
-public class Texture {
+public class Texture implements Disposable {
 	private final int _id;
 
 	private final int _width;

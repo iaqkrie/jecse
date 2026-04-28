@@ -14,7 +14,17 @@ public final class SceneManager {
 	public static void loadScene (Scene scene) {
 		if (scene == null) return;
 
-		scene.init();
+		if (_activeScene != null)
+			_activeScene.destroy();
+
 		_activeScene = scene;
+		_activeScene.init();
+	}
+
+	public static void unloadScene () {
+		if (_activeScene == null) return;
+
+		_activeScene.destroy();
+		_activeScene = null;
 	}
 }

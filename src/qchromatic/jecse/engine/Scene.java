@@ -1,6 +1,7 @@
 package qchromatic.jecse.engine;
 
 import qchromatic.jecse.core.Component;
+import qchromatic.jecse.core.Disposable;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
 
@@ -26,6 +27,21 @@ public final class Scene {
 	public void loop (float dtime) {
 		for (System system : _systems.values())
 			system.loop(dtime);
+	}
+
+	public void destroy () {
+		for (System system : _systems.values())
+			system.destroy();
+
+		for (Entity entity : _entities.values()) {
+			for (Component component : entity.getAllComponents()) {
+				if (component instanceof Disposable disposable)
+					disposable.destroy();
+			}
+		}
+
+		_systems.clear();
+		_entities.clear();
 	}
 
 	public void addEntity (Entity entity) {

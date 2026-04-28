@@ -7,13 +7,18 @@ import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.core.System;
 import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Mesh;
+import qchromatic.jecse.graphics.MeshGpuResource;
 import qchromatic.jecse.graphics.Shader;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL30.*;
 
 public class RenderSystem extends System {
+	private final Map<Mesh, MeshGpuResource> _meshResources = new HashMap<>();
+
 	private List<Entity> _entities;
 	private Entity _cameraEntity;
 
@@ -37,6 +42,14 @@ public class RenderSystem extends System {
 		updateEntitiesList();
 	}
 
+	@Override
+	public void destroy() {
+		for (MeshGpuResource resource : _meshResources.values())
+			resource.destroy();
+
+		_meshResources.clear();
+	}
+
 	private void updateEntitiesList () {
 		_entities = List.of(scene.getEntitiesWithComponents(
 				Transform.class,
@@ -49,30 +62,33 @@ public class RenderSystem extends System {
 
 		if (meshRenderer == null || transform == null) return;
 
-		Camera camera = _cameraEntity.getComponent(Camera.class);
-
 		Mesh mesh = meshRenderer.mesh();
 		Material material = meshRenderer.material();
+
+		if (mesh == null || material == null) return;
+
+		MeshGpuResource resource = _meshResources.get(mesh);
+
+		if (resource == null) {
+			resource = createMeshGpuResource(mesh);
+			_meshResources.put(mesh, resource);
+		}
+
 		material.use();
 
+		Camera camera = _cameraEntity.getComponent(Camera.class);
 		Shader shader = material.getShader();
 
 		shader.setUniform("u_model", transform.getModelMatrix().transposed());
 		shader.setUniform("u_view", camera.getViewMatrix().transposed());
 		shader.setUniform("u_projection", camera.getProjectionMatrix().transposed());
 
-		int vaoId = meshRenderer.getVao();
-		if (vaoId == -1) {
-			vaoId = createVAO(mesh);
-			meshRenderer.setVao(vaoId);
-		}
-
-		glBindVertexArray(vaoId);
+		glBindVertexArray(resource.vaoId());
 		glDrawElements(GL_TRIANGLES, mesh.triangles().length, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 
-	private int createVAO (Mesh mesh) {
+	private MeshGpuResource createMeshGpuResource (Mesh mesh) {
 		int vaoId = glGenVertexArrays();
 		glBindVertexArray(vaoId);
 
@@ -92,6 +108,6 @@ public class RenderSystem extends System {
 
 		glBindVertexArray(0);
 
-		return vaoId;
+		return new MeshGpuResource(vaoId, vboId, eboId);
 	}
 }

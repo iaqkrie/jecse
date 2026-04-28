@@ -10,6 +10,8 @@ public abstract class System {
 
 	public void update () { }
 
+	public void destroy () { }
+
 	public System scene (Scene scene) {
 		if (scene == null) return this;
 

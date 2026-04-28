@@ -13,22 +13,24 @@ public final class Application {
 	public Application (Window window) { _window = window; }
 
 	public void run () {
-		_window.show();
+		try {
+			_window.show();
 
-		float dTime;
-		float lastFrameTime = (float) glfwGetTime();
-		while (!_window.shouldClose()) {
-			_window.clear();
+			float lastFrameTime = (float) glfwGetTime();
+			while (!_window.shouldClose()) {
+				_window.clear();
 
-			float currentTime = (float) glfwGetTime();
-			SceneManager.getActiveScene().loop(currentTime - lastFrameTime);
-			Input.update();
-			_window.update();
+				float currentTime = (float) glfwGetTime();
+				SceneManager.getActiveScene().loop(currentTime - lastFrameTime);
+				Input.update();
+				_window.update();
 
-			lastFrameTime = currentTime;
+				lastFrameTime = currentTime;
+			}
+		} finally {
+			SceneManager.unloadScene();
+			_window.destroy();
 		}
-
-		_window.destroy();
 	}
 
 	public Window getWindow () { return _window; }

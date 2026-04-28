@@ -114,7 +114,11 @@ public final class Window {
 	}
 
 	public void destroy () {
+		if (_hwnd == 0) return;
+
 		glfwDestroyWindow(_hwnd);
+		_hwnd = 0;
+
 		glfwTerminate();
 	}
 

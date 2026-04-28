@@ -2,6 +2,7 @@ package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.common.Mat4;
 import qchromatic.jecse.common.Vec4;
+import qchromatic.jecse.core.Disposable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +10,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public final class Shader {
+public final class Shader implements Disposable {
 	private int _handler;
 
 	public Shader (Path vertexShaderPath, Path fragmentShaderPath) {
@@ -84,5 +85,5 @@ public final class Shader {
 
 	public int getUniformLocation (String name) { return glGetUniformLocation(_handler, name); }
 
-	public void delete () { glDeleteProgram(_handler); }
+	public void destroy () { glDeleteProgram(_handler); }
 }
