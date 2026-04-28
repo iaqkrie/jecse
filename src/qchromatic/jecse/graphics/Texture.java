@@ -65,7 +65,8 @@ public class Texture implements Disposable {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	public void destroy () {
+	@Override
+    public void destroy () {
 		glDeleteTextures(_id);
 	}
 }

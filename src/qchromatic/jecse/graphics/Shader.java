@@ -83,7 +83,12 @@ public final class Shader implements Disposable {
 	public void use () { glUseProgram(_handler); }
 	public static void stopUsing() { glUseProgram(0); }
 
-	public int getUniformLocation (String name) { return glGetUniformLocation(_handler, name); }
+	public int getUniformLocation (String name) {
+		return glGetUniformLocation(_handler, name);
+	}
 
-	public void destroy () { glDeleteProgram(_handler); }
+	@Override
+    public void destroy () {
+		glDeleteProgram(_handler);
+	}
 }

@@ -1,6 +1,5 @@
 package qchromatic.jecse.core;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Entity {
