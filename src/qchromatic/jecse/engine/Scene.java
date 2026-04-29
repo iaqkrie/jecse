@@ -14,14 +14,23 @@ public final class Scene implements EntityObserver {
 
 	private List<EntityQuery> _queries;
 
+	private boolean _isActive;
+
 	public Scene () {
 		_entities = new HashMap<>();
 		_systems = new HashMap<>();
 
 		_queries = new ArrayList<>();
+
+		_isActive = false;
 	}
 
 	public void init () {
+		_isActive = true;
+
+		for (Entity entity : _entities.values())
+			entity.observer(this);
+
 		for (System system : _systems.values())
 			system.init();
 	}
@@ -32,6 +41,8 @@ public final class Scene implements EntityObserver {
 	}
 
 	public void destroy () {
+		_isActive = false;
+
 		for (System system : _systems.values())
 			system.destroy();
 
@@ -53,8 +64,10 @@ public final class Scene implements EntityObserver {
 		if (entity == null || _entities.containsKey(entity.id())) return;
 
 		_entities.put(entity.id(), entity);
-		entity.observer(this);
 
+		if (!_isActive) return;
+
+		entity.observer(this);
 		updateQueries(entity);
 
 		for (System system : _systems.values())
@@ -71,11 +84,13 @@ public final class Scene implements EntityObserver {
 
 		if (entity == null) return;
 
-		for (EntityQuery query : _queries)
-			query.remove(entity);
+		if (_isActive) {
+			for (EntityQuery query : _queries)
+				query.remove(entity);
 
-		for (System system : _systems.values())
-			system.onEntityRemoved(entity);
+			for (System system : _systems.values())
+				system.onEntityRemoved(entity);
+		}
 
 		for (Component component : entity.getAllComponents()) {
 			if (component instanceof Disposable disposable)
@@ -86,12 +101,16 @@ public final class Scene implements EntityObserver {
 	}
 
 	public void addSystem (System system) {
+		if (_isActive) throw new RuntimeException("Cannot add system to active scene");
+
 		if (system == null || _systems.containsKey(system.getClass())) return;
 		_systems.put(system.getClass(), system.scene(this));
 	}
 
 	@Override
 	public void onComponentAdded(Entity entity, Component component) {
+		if (!_isActive) return;
+
 		updateQueries(entity);
 
 		for (System system : _systems.values())
@@ -100,6 +119,8 @@ public final class Scene implements EntityObserver {
 
 	@Override
 	public void onComponentRemoved(Entity entity, Component component) {
+		if (!_isActive) return;
+
 		updateQueries(entity);
 
 		for (System system : _systems.values())
