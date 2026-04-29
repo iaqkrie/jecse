@@ -6,6 +6,8 @@ public class Entity {
 	private final String _id;
 	private final Map<Class<? extends Component>, Component> _components;
 
+	private EntityObserver _observer;
+
 	public Entity () { this("0"); }
 	public Entity (String id) {
 		_id = id;
@@ -14,9 +16,17 @@ public class Entity {
 
 	public String id () { return _id; }
 
+	public void observer (EntityObserver observer) { _observer = observer; }
+
 	public <T extends Component> Entity addComponent (T component) {
+		if (component == null) return this;
+		if (_components.containsKey(component.getClass())) return this;
+
 		component.entity = this;
 		_components.put(component.getClass(), component);
+
+		if (_observer != null)
+			_observer.onComponentAdded(this, component);
 
 		return this;
 	}
@@ -54,6 +64,14 @@ public class Entity {
 	}
 
 	public void removeComponent (Class<? extends Component> componentClass) {
-		_components.remove(componentClass);
+		Component component = _components.remove(componentClass);
+
+		if (component == null) return;
+
+		if (_observer != null)
+			_observer.onComponentRemoved(this, component);
+
+		if (component instanceof Disposable disposable)
+			disposable.destroy();
 	}
 }

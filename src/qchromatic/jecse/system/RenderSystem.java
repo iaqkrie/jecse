@@ -4,6 +4,7 @@ import qchromatic.jecse.component.Camera;
 import qchromatic.jecse.component.MeshRenderer;
 import qchromatic.jecse.component.Transform;
 import qchromatic.jecse.core.Entity;
+import qchromatic.jecse.core.EntityQuery;
 import qchromatic.jecse.core.System;
 import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Mesh;
@@ -19,27 +20,24 @@ import static org.lwjgl.opengl.GL30.*;
 public class RenderSystem extends System {
 	private final Map<Mesh, MeshGpuResource> _meshResources = new HashMap<>();
 
-	private List<Entity> _entities;
+	private EntityQuery _renderables;
+	private EntityQuery _cameras;
+
 	private Entity _cameraEntity;
 
 	@Override
 	public void init () {
-		updateEntitiesList();
+		_renderables = scene.query(Transform.class, MeshRenderer.class);
+		_cameras = scene.query(Transform.class, Camera.class);
 
-		_cameraEntity = scene.getEntitiesWithComponents(
-				Transform.class,
-				Camera.class)[0];
+		if (_cameras.iterator().hasNext())
+			_cameraEntity = _cameras.iterator().next();
 	}
 
 	@Override
 	public void loop (float dtime) {
-		for (Entity entity : _entities)
+		for (Entity entity : _renderables)
 			renderEntity(entity);
-	}
-
-	@Override
-	public void update () {
-		updateEntitiesList();
 	}
 
 	@Override
@@ -48,12 +46,6 @@ public class RenderSystem extends System {
 			resource.destroy();
 
 		_meshResources.clear();
-	}
-
-	private void updateEntitiesList () {
-		_entities = List.of(scene.getEntitiesWithComponents(
-				Transform.class,
-				MeshRenderer.class));
 	}
 
 	private void renderEntity (Entity entity) {
@@ -76,6 +68,7 @@ public class RenderSystem extends System {
 
 		material.use();
 
+		if (_cameraEntity == null) return;
 		Camera camera = _cameraEntity.getComponent(Camera.class);
 		Shader shader = material.getShader();
 
