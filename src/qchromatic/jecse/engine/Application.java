@@ -12,8 +12,9 @@ public final class Application {
 	public Application (int windowWidth, int windowHeight) { _window = new Window(windowWidth, windowHeight); }
 	public Application (Window window) { _window = window; }
 
-	public void run () {
+	public void run (Scene startScene) {
 		try {
+			SceneManager.loadScene(startScene);
 			_window.show();
 
 			float lastFrameTime = (float) glfwGetTime();
