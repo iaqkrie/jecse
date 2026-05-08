@@ -23,6 +23,8 @@ public class FreecamController extends Script {
 
 	@Override
 	public void loop (float dtime) {
+		if (_transform == null) return;
+
 		move(dtime);
 		look(dtime);
 	}

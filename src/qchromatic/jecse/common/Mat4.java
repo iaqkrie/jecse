@@ -1,6 +1,6 @@
 package qchromatic.jecse.common;
 
-public class Mat4 {
+public final class Mat4 {
 	private float[] _matrix;
 
 	// region ctors
@@ -66,6 +66,16 @@ public class Mat4 {
 
 		_matrix = result;
 		return this;
+	}
+
+	public Vec3 transformPoint (Vec3 point) {
+		if (point == null) return new Vec3();
+
+		return new Vec3(
+				get(0, 0) * point.x + get(0, 1) * point.y + get(0, 2) * point.z + get(0, 3),
+				get(1, 0) * point.x + get(1, 1) * point.y + get(1, 2) * point.z + get(1, 3),
+				get(2, 0) * point.x + get(2, 1) * point.y + get(2, 2) * point.z + get(2, 3)
+		);
 	}
 
 	public static Mat4 translation (Vec3 position) { return translation(position.x, position.y, position.z); }

@@ -1,19 +1,26 @@
 package qchromatic.jecse.graphics;
 
 import qchromatic.jecse.common.Mat4;
+import qchromatic.jecse.common.Vec2;
+import qchromatic.jecse.common.Vec3;
 import qchromatic.jecse.common.Vec4;
 import qchromatic.jecse.core.Disposable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public final class Shader implements Disposable {
 	private int _handler;
+	private final Map<String, Integer> _uniformLocations;
 
 	public Shader (Path vertexShaderPath, Path fragmentShaderPath) {
+		_uniformLocations = new HashMap<>();
+
 		try {
 			String vss = new String(Files.readAllBytes(vertexShaderPath));
 			String fss = new String(Files.readAllBytes(fragmentShaderPath));
@@ -27,6 +34,7 @@ public final class Shader implements Disposable {
 		this(new String(vertexShaderSource), new String(fragmentShaderSource));
 	}
 	public Shader (String vertexShaderSource, String fragmentShaderSource) {
+		_uniformLocations = new HashMap<>();
 		createShaders(vertexShaderSource, fragmentShaderSource);
 	}
 
@@ -73,8 +81,20 @@ public final class Shader implements Disposable {
 	public void setUniform (String name, Vec4 value) {
 		glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
 	}
+	public void setUniform (String name, Vec3 value) {
+		glUniform3f(getUniformLocation(name), value.x, value.y, value.z);
+	}
+	public void setUniform (String name, Vec2 value) {
+		glUniform2f(getUniformLocation(name), value.x, value.y);
+	}
+	public void setUniform (String name, float value) {
+		glUniform1f(getUniformLocation(name), value);
+	}
 	public void setUniform (String name, int value) {
 		glUniform1i(getUniformLocation(name), value);
+	}
+	public void setUniform (String name, boolean value) {
+		glUniform1i(getUniformLocation(name), value ? 1 : 0);
 	}
 	public void setUniform (String name, Mat4 value) {
 		glUniformMatrix4fv(getUniformLocation(name), false, value.getMatrix());
@@ -84,11 +104,17 @@ public final class Shader implements Disposable {
 	public static void stopUsing() { glUseProgram(0); }
 
 	public int getUniformLocation (String name) {
-		return glGetUniformLocation(_handler, name);
+		return _uniformLocations.computeIfAbsent(name, uniform -> glGetUniformLocation(_handler, uniform));
 	}
+
+	public int handler () { return _handler; }
 
 	@Override
     public void destroy () {
+		if (_handler == 0) return;
+
 		glDeleteProgram(_handler);
+		_handler = 0;
+		_uniformLocations.clear();
 	}
 }

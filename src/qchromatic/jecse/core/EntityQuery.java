@@ -1,21 +1,31 @@
 package qchromatic.jecse.core;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public final class EntityQuery implements Iterable<Entity> {
     private final Set<Entity> _entities;
-    private final Class<? extends Component>[] _requiredComponents;
+    private final List<Class<? extends Component>> _requiredComponents;
     private final boolean _inheritance;
 
-    public EntityQuery (Class<? extends Component>[] requiredComponents, boolean inheritance) {
+    public EntityQuery (Collection<Class<? extends Component>> requiredComponents, boolean inheritance) {
         _entities = new LinkedHashSet<>();
-        _requiredComponents = requiredComponents;
+        _requiredComponents = List.copyOf(requiredComponents);
         _inheritance = inheritance;
     }
 
+    public List<Class<? extends Component>> requiredComponents () { return _requiredComponents; }
+
+    public boolean inheritance () { return _inheritance; }
+
+    public int size () { return _entities.size(); }
+
+    public boolean isEmpty () { return _entities.isEmpty(); }
+
+    public boolean contains (Entity entity) { return _entities.contains(entity); }
+
     public boolean matches (Entity entity) {
+        if (entity == null) return false;
+
         for (Class<? extends Component> componentClass : _requiredComponents) {
             if (!(_inheritance ? entity.hasComponentInheritance(componentClass) : entity.hasComponent(componentClass)))
                 return false;
@@ -31,12 +41,24 @@ public final class EntityQuery implements Iterable<Entity> {
             _entities.remove(entity);
     }
 
+    public void add (Entity entity) {
+        if (entity != null) _entities.add(entity);
+    }
+
     public void remove (Entity entity) {
         _entities.remove(entity);
     }
 
+    public void clear () {
+        _entities.clear();
+    }
+
+    public List<Entity> snapshot () {
+        return List.copyOf(_entities);
+    }
+
     @Override
     public Iterator<Entity> iterator() {
-        return _entities.iterator();
+        return snapshot().iterator();
     }
 }

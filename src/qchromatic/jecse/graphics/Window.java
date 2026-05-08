@@ -1,7 +1,12 @@
 package qchromatic.jecse.graphics;
 
 import org.lwjgl.opengl.GL;
+import qchromatic.jecse.common.Vec4;
 import qchromatic.jecse.engine.Input;
+import qchromatic.jecse.engine.InputState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -13,6 +18,11 @@ public final class Window {
 	private static final boolean DEFAULT_RESIZABLE = true;
 	private static final boolean DEFAULT_VSYNC = false;
 
+	private static boolean _glfwInitialized;
+	private static int _windowCount;
+
+	private final InputState _input;
+	private final List<WindowResizeListener> _resizeListeners;
 	private long _hwnd;
 
 	private int _width;
@@ -21,10 +31,19 @@ public final class Window {
 	private boolean _resizable;
 	private boolean _vsync;
 
-	public Window () { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_TITLE); }
-	public Window (String title) { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, title); }
-	public Window (int width, int height) { this(width, height, DEFAULT_TITLE); }
-	public Window (int width, int height, String title) {
+	public Window () { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_TITLE, Input.current()); }
+	public Window (InputState input) { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_TITLE, input); }
+	public Window (String title) { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, Input.current()); }
+	public Window (String title, InputState input) { this(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, input); }
+	public Window (int width, int height) { this(width, height, DEFAULT_TITLE, Input.current()); }
+	public Window (int width, int height, InputState input) { this(width, height, DEFAULT_TITLE, input); }
+	public Window (int width, int height, String title) { this(width, height, title, Input.current()); }
+	public Window (int width, int height, String title, InputState input) {
+		if (input == null)
+			throw new IllegalArgumentException("Input state cannot be null");
+
+		_input = input;
+		_resizeListeners = new ArrayList<>();
 		_width = width;
 		_height = height;
 		_title = title;
@@ -38,8 +57,12 @@ public final class Window {
 	}
 
 	private void initGLFW () {
-		if (!glfwInit())
-			throw new RuntimeException("Failed to init GLFW");
+		if (!_glfwInitialized) {
+			if (!glfwInit())
+				throw new RuntimeException("Failed to init GLFW");
+
+			_glfwInitialized = true;
+		}
 
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, 0);
@@ -51,6 +74,7 @@ public final class Window {
 		if (_hwnd == 0)
 			throw new RuntimeException("Failed to create window");
 
+		_windowCount++;
 		glfwMakeContextCurrent(_hwnd);
 	}
 
@@ -71,23 +95,48 @@ public final class Window {
 			_width = newW;
 			_height = newH;
 			glViewport(0, 0, _width, _height);
+			notifyResizeListeners();
 		});
 
 		glfwSetKeyCallback(_hwnd, (window, key, scancode, action, mods) -> {
-			Input.setKeyState(key, action != GLFW_RELEASE);
+			_input.setKeyState(key, action != GLFW_RELEASE);
 		});
 
 		glfwSetMouseButtonCallback(_hwnd, (window, button, action, mods) -> {
-			Input.setMouseButtonState(button, action != GLFW_RELEASE);
+			_input.setMouseButtonState(button, action != GLFW_RELEASE);
 		});
 
 		glfwSetCursorPosCallback(_hwnd, (window, xpos, ypos) -> {
-			Input.setMousePosition((float) xpos, (float) ypos);
+			_input.setMousePosition((float) xpos, (float) ypos);
+		});
+
+		glfwSetCursorEnterCallback(_hwnd, (window, entered) -> {
+			if (!entered)
+				_input.resetMousePositionTracking();
 		});
 
 		glfwSetScrollCallback(_hwnd, (window, xoffset, yoffset) -> {
-			Input.setScrollOffset((float) xoffset, (float) yoffset);
+			_input.setScrollOffset((float) xoffset, (float) yoffset);
 		});
+	}
+
+	public InputState input () { return _input; }
+
+	public int width () { return _width; }
+
+	public int height () { return _height; }
+
+	public float aspectRatio () {
+		return _height == 0 ? 1f : (float) _width / (float) _height;
+	}
+
+	public void addResizeListener (WindowResizeListener listener) {
+		if (listener != null && !_resizeListeners.contains(listener))
+			_resizeListeners.add(listener);
+	}
+
+	public void removeResizeListener (WindowResizeListener listener) {
+		_resizeListeners.remove(listener);
 	}
 
 	public void setCursorNormal () {
@@ -108,6 +157,13 @@ public final class Window {
 
 	public void clear () { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
+	public void clear (Vec4 color) {
+		if (color != null)
+			glClearColor(color.x, color.y, color.z, color.w);
+
+		clear();
+	}
+
 	public void update () {
 		glfwSwapBuffers(_hwnd);
 		glfwPollEvents();
@@ -118,10 +174,20 @@ public final class Window {
 
 		glfwDestroyWindow(_hwnd);
 		_hwnd = 0;
+		_resizeListeners.clear();
 
-		glfwTerminate();
+		_windowCount = Math.max(0, _windowCount - 1);
+		if (_windowCount == 0 && _glfwInitialized) {
+			glfwTerminate();
+			_glfwInitialized = false;
+		}
 	}
 
 	public void close () { glfwSetWindowShouldClose(_hwnd, true); }
 	public boolean shouldClose () { return glfwWindowShouldClose(_hwnd); }
+
+	private void notifyResizeListeners () {
+		for (WindowResizeListener listener : List.copyOf(_resizeListeners))
+			listener.onResize(this, _width, _height);
+	}
 }

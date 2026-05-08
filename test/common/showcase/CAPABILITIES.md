@@ -1,0 +1,25 @@
+# Возможности jecse
+
+- Создание окна, очистка экрана, resize callbacks и основной GLFW/OpenGL loop.
+- EngineContext с доступом к window, input state, asset manager, scene manager, config и time.
+- Настраиваемые clear color, time scale, fixed delta time, автоматическое обновление camera aspect ratio и опциональные OpenGL error checks.
+- ECS: entities, components, systems, queries, стабильный порядок систем и отложенные structural changes.
+- Жизненный цикл компонентов: attach, detach, start, stop, destroy.
+- Жизненный цикл скриптов: init, start, loop, stop, destroy.
+- Instance-based input: клавиатура, кнопки мыши, позиция мыши, mouse delta и scroll.
+- Сцены со start, stop, dispose, добавлением/удалением entities и systems, component indexes и query snapshots.
+- Иерархические Transform: parent/children, local/world matrices, world position, world rotation и dirty propagation.
+- Perspective и orthographic камеры с priority, culling masks, near/far planes и aspect ratio.
+- Mesh rendering с render queues, layers, material/mesh sorting, sphere frustum culling и кешированием GPU mesh resources.
+- Базовые встроенные меши: triangle, quad и cube с position, UV и normal attributes.
+- Material API с generic uniforms: float, int, boolean, vec2, vec3, vec4, mat4 и named texture slots.
+- Shared AssetManager для shaders, textures, debug texture и загрузки текстур с диска через STB.
+- DirectionalLight component и простой lit shader.
+- DebugRenderer для линий, transform axes и bounds через отдельную debug render system.
+- Free camera controller script с WASD, Space, Shift и mouse delta.
+- Простая 3D-физика через PhysicsSystem: gravity, fixed timestep, substeps, velocity/position iterations, support/penetration friction, contact damping, rolling friction, speed limits, sleeping и collision solving.
+- Rigidbody для dynamic, static и kinematic тел, mass, center of mass, linear/angular velocity, forces, torque, impulses, gravity scale, damping и sleep/wake state.
+- BoxCollider с offset, layer/mask filtering, trigger flag, restitution и friction.
+- OBB/SAT collision detection/resolution для box colliders, включая dynamic-static и dynamic-dynamic пары.
+- Контактные импульсы в точке контакта с учетом inertia, поэтому смещенные контакты создают вращение.
+- Sleep проверяет устойчивую опору: центр масс должен попадать в contact patch, иначе тело продолжает падать/вращаться.
