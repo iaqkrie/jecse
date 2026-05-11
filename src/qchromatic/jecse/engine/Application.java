@@ -50,6 +50,8 @@ public final class Application {
 				float currentTime = (float) glfwGetTime();
 				_context.time().update(currentTime);
 				_context.sceneManager().activeScene().loop(_context.time().deltaTime());
+				_context.sceneManager().applyPendingChanges();
+				updateCameraAspect();
 				_context.input().update();
 				_window.update();
 			}

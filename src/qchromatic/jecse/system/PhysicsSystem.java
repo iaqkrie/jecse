@@ -20,6 +20,11 @@ import java.util.Map;
 
 public class PhysicsSystem extends System {
 	private static final float EPSILON = 0.00001f;
+	private static final float CONTACT_TOLERANCE = 0.02f;
+	private static final int MAX_CONTACT_POINTS = 4;
+	private static final float POSITION_SLOP = 0.01f;
+	private static final float BAUMGARTE = 0.2f;
+	private static final float MAX_PENETRATION_BIAS = 1.5f;
 
 	private Vec3 _gravity;
 	private float _fixedTimeStep;
@@ -27,9 +32,6 @@ public class PhysicsSystem extends System {
 	private int _positionIterations;
 	private int _velocityIterations;
 	private float _rollingFriction;
-	private float _contactLinearDamping;
-	private float _contactAngularDamping;
-	private float _penetrationFriction;
 	private float _maxLinearSpeed;
 	private float _maxAngularSpeed;
 	private float _sleepLinearThreshold;
@@ -50,9 +52,6 @@ public class PhysicsSystem extends System {
 		_positionIterations = 6;
 		_velocityIterations = 8;
 		_rollingFriction = 0.12f;
-		_contactLinearDamping = 0.04f;
-		_contactAngularDamping = 0.18f;
-		_penetrationFriction = 0.2f;
 		_maxLinearSpeed = 30f;
 		_maxAngularSpeed = 12f;
 		_sleepLinearThreshold = 0.05f;
@@ -121,13 +120,15 @@ public class PhysicsSystem extends System {
 		if (linear < 0f || angular < 0f)
 			throw new IllegalArgumentException("Contact damping cannot be negative");
 
-		_contactLinearDamping = linear;
-		_contactAngularDamping = angular;
+		// Kept for source compatibility; contacts are solved by impulse constraints now.
 		return this;
 	}
 
 	public PhysicsSystem penetrationFriction (float penetrationFriction) {
-		_penetrationFriction = Math.max(0f, penetrationFriction);
+		if (penetrationFriction < 0f)
+			throw new IllegalArgumentException("Penetration friction cannot be negative");
+
+		// Kept for source compatibility; penetration is corrected by Baumgarte bias now.
 		return this;
 	}
 
@@ -265,6 +266,12 @@ public class PhysicsSystem extends System {
 				resolveVelocity(contact);
 			}
 		}
+
+		for (Contact contact : contacts()) {
+			if (contact.a.collider.trigger() || contact.b.collider.trigger()) continue;
+			applyRollingFriction(contact, contact.a, contact.normal.multiplied(-1f));
+			applyRollingFriction(contact, contact.b, contact.normal);
+		}
 	}
 
 	private void solvePosition () {
@@ -344,21 +351,142 @@ public class PhysicsSystem extends System {
 		if (result.normal.lengthSquared() <= 0f)
 			return null;
 
-		return new Contact(a, b, result.normal, result.penetration, contactPoint(a.shape, b.shape, result.normal));
+		return new Contact(a, b, result.normal, result.penetration, contactPoints(a.shape, b.shape, result.normal, result.penetration));
 	}
 
-	private Vec3 contactPoint (BoxShape a, BoxShape b, Vec3 normal) {
+	private List<Vec3> contactPoints (BoxShape a, BoxShape b, Vec3 normal, float penetration) {
+		List<Vec3> points = new ArrayList<>();
+		float plane = contactPlane(a, b, normal);
+
+		collectContactVertices(points, a, b, normal, plane, penetration, true);
+		collectContactVertices(points, b, a, normal, plane, penetration, false);
+
+		if (points.isEmpty())
+			addUniquePoint(points, contactPatchCenter(a, b, normal, plane), CONTACT_TOLERANCE);
+
+		return reduceContactPoints(points, MAX_CONTACT_POINTS);
+	}
+
+	private float contactPlane (BoxShape a, BoxShape b, Vec3 normal) {
+		float normalA = a.center.dot(normal) + projectionRadius(a, normal);
+		float normalB = b.center.dot(normal) - projectionRadius(b, normal);
+		return (normalA + normalB) * 0.5f;
+	}
+
+	private Vec3 contactPatchCenter (BoxShape a, BoxShape b, Vec3 normal, float plane) {
 		Vec3 tangent0 = contactTangent(normal);
 		Vec3 tangent1 = normal.crossed(tangent0).normalized();
 
-		float normalA = a.center.dot(normal) + projectionRadius(a, normal);
-		float normalB = b.center.dot(normal) - projectionRadius(b, normal);
 		float tangent0Center = overlapCenter(a, b, tangent0);
 		float tangent1Center = overlapCenter(a, b, tangent1);
 
-		return normal.multiplied((normalA + normalB) * 0.5f)
+		return normal.multiplied(plane)
 				.added(tangent0.multiplied(tangent0Center))
 				.added(tangent1.multiplied(tangent1Center));
+	}
+
+	private void collectContactVertices (List<Vec3> points, BoxShape source, BoxShape target, Vec3 normal, float plane, float penetration, boolean positiveFace) {
+		float face = source.center.dot(normal) + (positiveFace ? projectionRadius(source, normal) : -projectionRadius(source, normal));
+		float maxFaceDistance = Math.max(CONTACT_TOLERANCE, penetration + CONTACT_TOLERANCE);
+
+		for (Vec3 vertex : vertices(source)) {
+			float projection = vertex.dot(normal);
+			float faceDistance = positiveFace ? face - projection : projection - face;
+			if (faceDistance > maxFaceDistance) continue;
+			if (!inside(vertex, target, maxFaceDistance)) continue;
+
+			addUniquePoint(points, projectOntoPlane(vertex, normal, plane), CONTACT_TOLERANCE);
+		}
+	}
+
+	private boolean inside (Vec3 point, BoxShape shape, float tolerance) {
+		Vec3 offset = subtract(point, shape.center);
+		for (int i = 0; i < 3; i++) {
+			if (Math.abs(offset.dot(shape.axes[i])) > half(shape, i) + tolerance)
+				return false;
+		}
+
+		return true;
+	}
+
+	private Vec3 projectOntoPlane (Vec3 point, Vec3 normal, float plane) {
+		return point.added(normal.multiplied(plane - point.dot(normal)));
+	}
+
+	private void addUniquePoint (List<Vec3> points, Vec3 point, float tolerance) {
+		float toleranceSquared = tolerance * tolerance;
+		for (Vec3 existing : points) {
+			if (distanceSquared(existing, point) <= toleranceSquared)
+				return;
+		}
+
+		points.add(point);
+	}
+
+	private List<Vec3> reduceContactPoints (List<Vec3> points, int maxPoints) {
+		if (points.size() <= maxPoints)
+			return List.copyOf(points);
+
+		List<Vec3> reduced = new ArrayList<>();
+		Vec3 center = average(points);
+		addFarthestPoint(points, reduced, center);
+
+		while (reduced.size() < maxPoints)
+			addMostSeparatedPoint(points, reduced);
+
+		return List.copyOf(reduced);
+	}
+
+	private Vec3 average (List<Vec3> points) {
+		Vec3 result = new Vec3();
+		for (Vec3 point : points)
+			result.add(point);
+
+		return result.multiplied(1f / points.size());
+	}
+
+	private void addFarthestPoint (List<Vec3> candidates, List<Vec3> result, Vec3 from) {
+		Vec3 best = null;
+		float bestDistance = -1f;
+		for (Vec3 candidate : candidates) {
+			float distance = distanceSquared(candidate, from);
+			if (distance > bestDistance) {
+				bestDistance = distance;
+				best = candidate;
+			}
+		}
+
+		if (best != null)
+			result.add(best);
+	}
+
+	private void addMostSeparatedPoint (List<Vec3> candidates, List<Vec3> result) {
+		Vec3 best = null;
+		float bestDistance = -1f;
+		for (Vec3 candidate : candidates) {
+			if (containsPoint(result, candidate)) continue;
+
+			float nearestDistance = Float.POSITIVE_INFINITY;
+			for (Vec3 existing : result)
+				nearestDistance = Math.min(nearestDistance, distanceSquared(candidate, existing));
+
+			if (nearestDistance > bestDistance) {
+				bestDistance = nearestDistance;
+				best = candidate;
+			}
+		}
+
+		if (best != null)
+			result.add(best);
+	}
+
+	private boolean containsPoint (List<Vec3> points, Vec3 point) {
+		for (Vec3 existing : points) {
+			if (distanceSquared(existing, point) <= EPSILON)
+				return true;
+		}
+
+		return false;
 	}
 
 	private float overlapCenter (BoxShape a, BoxShape b, Vec3 axis) {
@@ -392,19 +520,6 @@ public class PhysicsSystem extends System {
 		return shape.halfExtents.x * Math.abs(shape.axes[0].dot(axis))
 				+ shape.halfExtents.y * Math.abs(shape.axes[1].dot(axis))
 				+ shape.halfExtents.z * Math.abs(shape.axes[2].dot(axis));
-	}
-
-	private Vec3 supportPoint (BoxShape shape, Vec3 direction) {
-		Vec3 result = new Vec3(shape.center);
-		for (int i = 0; i < 3; i++) {
-			float dot = shape.axes[i].dot(direction);
-			if (dot > EPSILON)
-				result.add(shape.axes[i].multiplied(half(shape, i)));
-			else if (dot < -EPSILON)
-				result.add(shape.axes[i].multiplied(-half(shape, i)));
-		}
-
-		return result;
 	}
 
 	private BoxShape boxShape (Transform transform, Collider collider) {
@@ -447,35 +562,33 @@ public class PhysicsSystem extends System {
 	private void resolveVelocity (Contact contact) {
 		wakeForContact(contact);
 
+		for (Vec3 point : contact.points)
+			resolveVelocityAtPoint(contact, point);
+	}
+
+	private void resolveVelocityAtPoint (Contact contact, Vec3 point) {
 		float invMassA = inverseMass(contact.a.body);
 		float invMassB = inverseMass(contact.b.body);
 		Vec3 centerA = worldCenterOfMass(contact.a);
 		Vec3 centerB = worldCenterOfMass(contact.b);
-		Vec3 rA = subtract(contact.point, centerA);
-		Vec3 rB = subtract(contact.point, centerB);
+		Vec3 rA = subtract(point, centerA);
+		Vec3 rB = subtract(point, centerB);
 
 		Vec3 relativeVelocity = subtract(pointVelocity(contact.b, rB), pointVelocity(contact.a, rA));
 		float velocityAlongNormal = relativeVelocity.dot(contact.normal);
-		if (velocityAlongNormal > 0f) {
-			applyContactDamping(contact, contactFrictionImpulse(contact, 0f));
+		float velocityBias = contactVelocityBias(contact, velocityAlongNormal);
+		if (velocityAlongNormal >= velocityBias)
 			return;
-		}
 
 		float denominator = invMassA + invMassB
 				+ angularDenominator(contact.a, rA, contact.normal)
 				+ angularDenominator(contact.b, rB, contact.normal);
-		if (denominator <= 0f) {
-			applyContactDamping(contact, contactFrictionImpulse(contact, 0f));
+		if (denominator <= 0f)
 			return;
-		}
 
-		float restitution = Math.min(contact.a.collider.restitution(), contact.b.collider.restitution());
-		if (Math.abs(velocityAlongNormal) < 0.5f)
-			restitution = 0f;
-
-		float impulseMagnitude = -(1f + restitution) * velocityAlongNormal / denominator;
-		applyImpulse(contact.a, contact.normal.multiplied(-impulseMagnitude), contact.point);
-		applyImpulse(contact.b, contact.normal.multiplied(impulseMagnitude), contact.point);
+		float impulseMagnitude = (velocityBias - velocityAlongNormal) / denominator;
+		applyImpulse(contact.a, contact.normal.multiplied(-impulseMagnitude), point);
+		applyImpulse(contact.b, contact.normal.multiplied(impulseMagnitude), point);
 
 		relativeVelocity = subtract(pointVelocity(contact.b, rB), pointVelocity(contact.a, rA));
 		Vec3 tangent = subtract(relativeVelocity, contact.normal.multiplied(relativeVelocity.dot(contact.normal)));
@@ -490,16 +603,36 @@ public class PhysicsSystem extends System {
 				float maxFriction = Math.abs(impulseMagnitude) * friction;
 				tangentImpulseMagnitude = clamp(tangentImpulseMagnitude, -maxFriction, maxFriction);
 
-				applyImpulse(contact.a, tangent.multiplied(-tangentImpulseMagnitude), contact.point);
-				applyImpulse(contact.b, tangent.multiplied(tangentImpulseMagnitude), contact.point);
+				applyImpulse(contact.a, tangent.multiplied(-tangentImpulseMagnitude), point);
+				applyImpulse(contact.b, tangent.multiplied(tangentImpulseMagnitude), point);
 			}
 		}
-
-		applyContactDamping(contact, contactFrictionImpulse(contact, Math.abs(impulseMagnitude)));
 	}
 
-	private float contactFrictionImpulse (Contact contact, float normalImpulse) {
-		return Math.max(Math.max(normalImpulse, restingNormalImpulse(contact)), penetrationFrictionImpulse(contact));
+	private void applyRollingFriction (Contact contact, ColliderEntry entry, Vec3 contactForceDirection) {
+		Rigidbody body = entry.body;
+		if (_rollingFriction <= 0f || body == null || !body.enabled() || !body.dynamic() || body.sleeping() || body.lockRotation()) return;
+		if (!isSupported(contact, entry, contactForceDirection)) return;
+
+		Vec3 axis = contactForceDirection.normalized();
+		Vec3 angularVelocity = body.angularVelocity();
+		Vec3 spin = axis.multiplied(angularVelocity.dot(axis));
+		if (spin.lengthSquared() <= EPSILON) return;
+
+		body.angularVelocity(angularVelocity.added(spin.multiplied(-Math.min(1f, _rollingFriction * _fixedTimeStep))));
+	}
+
+	private float contactVelocityBias (Contact contact, float velocityAlongNormal) {
+		float bias = 0f;
+		float penetration = Math.max(0f, contact.penetration - POSITION_SLOP);
+		if (penetration > 0f)
+			bias = Math.min(MAX_PENETRATION_BIAS, BAUMGARTE * penetration / Math.max(_fixedTimeStep, EPSILON));
+
+		float restitution = Math.max(contact.a.collider.restitution(), contact.b.collider.restitution());
+		if (restitution > 0f && velocityAlongNormal < -0.5f)
+			bias += restitution * -velocityAlongNormal;
+
+		return bias;
 	}
 
 	private float restingNormalImpulse (Contact contact) {
@@ -517,14 +650,6 @@ public class PhysicsSystem extends System {
 			return 0f;
 
 		return body.mass() * supportAcceleration * _fixedTimeStep;
-	}
-
-	private float penetrationFrictionImpulse (Contact contact) {
-		float invMassSum = inverseMass(contact.a.body) + inverseMass(contact.b.body);
-		if (invMassSum <= 0f)
-			return 0f;
-
-		return contact.penetration * _penetrationFriction / Math.max(_fixedTimeStep, EPSILON) / invMassSum;
 	}
 
 	private void wakeForContact (Contact contact) {
@@ -546,9 +671,8 @@ public class PhysicsSystem extends System {
 		float invMassSum = invMassA + invMassB;
 		if (invMassSum <= 0f) return;
 
-		float slop = 0.002f;
-		float percent = 0.65f;
-		float correction = Math.max(0f, contact.penetration - slop) * percent;
+		float percent = 0.2f;
+		float correction = Math.min(0.05f, Math.max(0f, contact.penetration - POSITION_SLOP) * percent);
 		if (correction <= 0f) return;
 
 		if (invMassA > 0f)
@@ -573,43 +697,6 @@ public class PhysicsSystem extends System {
 			body.angularVelocity(body.angularVelocity().added(angularImpulse));
 		}
 
-		clampBodySpeeds(body);
-	}
-
-	private void applyContactDamping (Contact contact, float normalImpulse) {
-		float friction = (float) Math.sqrt(contact.a.collider.friction() * contact.b.collider.friction());
-		float contactImpulse = Math.abs(normalImpulse) * friction;
-
-		dampTangentVelocity(contact.a.body, contact.normal, contactImpulse * _contactLinearDamping);
-		dampTangentVelocity(contact.b.body, contact.normal, contactImpulse * _contactLinearDamping);
-
-		float angularDamping = contactImpulse * (_rollingFriction + _contactAngularDamping);
-		dampAngularVelocity(contact.a.body, angularDamping);
-		dampAngularVelocity(contact.b.body, angularDamping);
-	}
-
-	private void dampTangentVelocity (Rigidbody body, Vec3 normal, float amount) {
-		if (body == null || !body.enabled() || !body.dynamic() || body.sleeping()) return;
-
-		Vec3 velocity = body.velocity();
-		Vec3 normalVelocity = normal.multiplied(velocity.dot(normal));
-		Vec3 tangentVelocity = subtract(velocity, normalVelocity);
-		float speed = tangentVelocity.length();
-		if (speed <= EPSILON) return;
-
-		float factor = Math.max(0f, 1f - amount / speed);
-		body.velocity(normalVelocity.added(tangentVelocity.multiplied(factor)));
-		clampBodySpeeds(body);
-	}
-
-	private void dampAngularVelocity (Rigidbody body, float amount) {
-		if (body == null || !body.enabled() || !body.dynamic() || body.sleeping() || body.lockRotation()) return;
-
-		Vec3 angular = body.angularVelocity();
-		float speed = angular.length();
-		if (speed <= EPSILON) return;
-
-		body.angularVelocity(angular.multiplied(Math.max(0f, 1f - amount / speed)));
 		clampBodySpeeds(body);
 	}
 
@@ -710,36 +797,49 @@ public class PhysicsSystem extends System {
 		Rigidbody body = entry.body;
 		if (body == null || !body.enabled() || !body.dynamic())
 			return false;
-		if (_gravity.lengthSquared() <= EPSILON)
-			return false;
 
-		Vec3 gravityUp = _gravity.normalized().multiplied(-1f);
-		Vec3 supportDirection = contactForceDirection.normalized();
-		return supportDirection.dot(gravityUp) >= 0.65f
+		return isSupportDirection(contactForceDirection)
 				&& restingNormalImpulse(body, contactForceDirection) > 0f
 				&& centerOfMassInsideContactPatch(contact, entry);
 	}
 
+	private boolean isSupportDirection (Vec3 contactForceDirection) {
+		if (_gravity.lengthSquared() <= EPSILON || contactForceDirection.lengthSquared() <= EPSILON)
+			return false;
+
+		Vec3 gravityUp = _gravity.normalized().multiplied(-1f);
+		Vec3 supportDirection = contactForceDirection.normalized();
+		return supportDirection.dot(gravityUp) >= 0.65f;
+	}
+
 	private boolean centerOfMassInsideContactPatch (Contact contact, ColliderEntry entry) {
+		if (contact.points.size() < 3)
+			return false;
+
 		Vec3 tangent0 = contactTangent(contact.normal);
 		Vec3 tangent1 = contact.normal.crossed(tangent0).normalized();
 		Vec3 centerOfMass = worldCenterOfMass(entry);
 
-		return insideProjectedOverlap(centerOfMass, tangent0, contact.a.shape, contact.b.shape)
-				&& insideProjectedOverlap(centerOfMass, tangent1, contact.a.shape, contact.b.shape);
+		return insideProjectedContactPatch(centerOfMass, tangent0, contact.points)
+				&& insideProjectedContactPatch(centerOfMass, tangent1, contact.points);
 	}
 
-	private boolean insideProjectedOverlap (Vec3 point, Vec3 axis, BoxShape a, BoxShape b) {
-		float minA = a.center.dot(axis) - projectionRadius(a, axis);
-		float maxA = a.center.dot(axis) + projectionRadius(a, axis);
-		float minB = b.center.dot(axis) - projectionRadius(b, axis);
-		float maxB = b.center.dot(axis) + projectionRadius(b, axis);
-		float overlapMin = Math.max(minA, minB);
-		float overlapMax = Math.min(maxA, maxB);
+	private boolean insideProjectedContactPatch (Vec3 point, Vec3 axis, List<Vec3> contactPoints) {
+		float min = Float.POSITIVE_INFINITY;
+		float max = Float.NEGATIVE_INFINITY;
+		for (Vec3 contactPoint : contactPoints) {
+			float projection = contactPoint.dot(axis);
+			min = Math.min(min, projection);
+			max = Math.max(max, projection);
+		}
+
+		if (max - min < 0.05f)
+			return false;
+
 		float pointProjection = point.dot(axis);
 		float margin = 0.03f;
 
-		return pointProjection >= overlapMin - margin && pointProjection <= overlapMax + margin;
+		return pointProjection >= min - margin && pointProjection <= max + margin;
 	}
 
 	private Vec3 contactTangent (Vec3 normal) {
@@ -846,6 +946,13 @@ public class PhysicsSystem extends System {
 		return new Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
 
+	private float distanceSquared (Vec3 a, Vec3 b) {
+		float x = a.x - b.x;
+		float y = a.y - b.y;
+		float z = a.z - b.z;
+		return x * x + y * y + z * z;
+	}
+
 	private float half (BoxShape shape, int index) {
 		return half(shape.halfExtents, index);
 	}
@@ -936,14 +1043,14 @@ public class PhysicsSystem extends System {
 		private final ColliderEntry b;
 		private final Vec3 normal;
 		private final float penetration;
-		private final Vec3 point;
+		private final List<Vec3> points;
 
-		private Contact (ColliderEntry a, ColliderEntry b, Vec3 normal, float penetration, Vec3 point) {
+		private Contact (ColliderEntry a, ColliderEntry b, Vec3 normal, float penetration, List<Vec3> points) {
 			this.a = a;
 			this.b = b;
 			this.normal = normal;
 			this.penetration = penetration;
-			this.point = point;
+			this.points = List.copyOf(points);
 		}
 	}
 }

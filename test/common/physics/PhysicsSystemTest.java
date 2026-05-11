@@ -15,6 +15,10 @@ public final class PhysicsSystemTest {
 		testScaledColliderUsesLocalHalfExtents();
 		testOffCenterContactCreatesRotation();
 		testUnsupportedLedgeDoesNotSleep();
+		testOverhangingBoxFallsToFloor();
+		testWallContactDoesNotGlueFallingBox();
+		testFlatRestingBoxDoesNotCreateArtificialSpin();
+		testYawSpinSettlesOnFloor();
 		testSpinningBoxSettlesOnFloor();
 		testSpinningBoxSettlesInCorner();
 	}
@@ -169,7 +173,7 @@ public final class PhysicsSystemTest {
 		scene.addEntity(box);
 
 		scene.init();
-		for (int i = 0; i < 120; i++)
+		for (int i = 0; i < 60; i++)
 			scene.loop(1f / 60f);
 
 		Quaternion rotation = transform.rotation();
@@ -227,8 +231,6 @@ public final class PhysicsSystemTest {
 				.fixedTimeStep(1f / 60f)
 				.velocityIterations(8)
 				.positionIterations(8)
-				.rollingFriction(0.25f)
-				.contactDamping(0.1f, 0.4f)
 				.maxSpeeds(20f, 8f)
 				.sleepThresholds(0.08f, 0.12f, 0.35f));
 
@@ -266,6 +268,183 @@ public final class PhysicsSystemTest {
 		scene.dispose();
 	}
 
+	private static void testFlatRestingBoxDoesNotCreateArtificialSpin () {
+		Scene scene = new Scene();
+		scene.addSystem(new PhysicsSystem()
+				.gravity(0f, -10f, 0f)
+				.fixedTimeStep(1f / 60f)
+				.velocityIterations(10)
+				.positionIterations(10)
+				.sleepThresholds(0.06f, 0.08f, 0.4f));
+
+		scene.addEntity(new Entity("ground")
+				.addComponent(new Transform()
+						.position(0f, -0.1f, 0f)
+						.scale(8f, 0.2f, 8f))
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		Rigidbody body = new Rigidbody()
+				.mass(1f)
+				.linearDamping(0.02f)
+				.angularDamping(0.02f);
+		Transform transform = new Transform()
+				.position(0f, 0.55f, 0f);
+		scene.addEntity(new Entity("resting-box")
+				.addComponent(transform)
+				.addComponent(body)
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		scene.init();
+		for (int i = 0; i < 360; i++)
+			scene.loop(1f / 60f);
+
+		if (body.angularVelocity().length() > 0.08f)
+			throw new AssertionError("flat resting box gained angular velocity");
+		if (Math.abs(transform.position().x) > 0.05f || Math.abs(transform.position().z) > 0.05f)
+			throw new AssertionError("flat resting box drifted on the floor");
+
+		scene.dispose();
+	}
+
+	private static void testOverhangingBoxFallsToFloor () {
+		Scene scene = new Scene();
+		scene.addSystem(new PhysicsSystem()
+				.gravity(0f, -10f, 0f)
+				.fixedTimeStep(1f / 60f)
+				.velocityIterations(12)
+				.positionIterations(10)
+				.sleepThresholds(0.08f, 0.12f, 0.4f));
+
+		scene.addEntity(new Entity("floor")
+				.addComponent(new Transform()
+						.position(0f, -0.1f, 0f)
+						.scale(8f, 0.2f, 8f))
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		scene.addEntity(new Entity("narrow-support")
+				.addComponent(new Transform()
+						.position(0f, 0.25f, 0f))
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.25f, 2f)
+						.friction(0.9f)));
+
+		Rigidbody body = new Rigidbody()
+				.mass(1f)
+				.linearDamping(0.04f)
+				.angularDamping(0.08f);
+		Transform transform = new Transform()
+				.position(0.82f, 1f, 0f);
+		scene.addEntity(new Entity("overhanging-box")
+				.addComponent(transform)
+				.addComponent(body)
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(0.9f)));
+
+		scene.init();
+		for (int i = 0; i < 120; i++)
+			scene.loop(1f / 60f);
+
+		if (transform.position().y > 0.8f)
+			throw new AssertionError("overhanging box stayed glued to the support too long: position="
+					+ transform.position().x + "," + transform.position().y + "," + transform.position().z
+					+ " angular=" + body.angularVelocity().x + "," + body.angularVelocity().y + "," + body.angularVelocity().z
+					+ " sleeping=" + body.sleeping());
+
+		scene.dispose();
+	}
+
+	private static void testYawSpinSettlesOnFloor () {
+		Scene scene = new Scene();
+		scene.addSystem(new PhysicsSystem()
+				.gravity(0f, -10f, 0f)
+				.fixedTimeStep(1f / 60f)
+				.velocityIterations(12)
+				.positionIterations(10)
+				.maxSpeeds(20f, 10f)
+				.sleepThresholds(0.08f, 0.12f, 0.35f));
+
+		scene.addEntity(new Entity("ground")
+				.addComponent(new Transform()
+						.position(0f, -0.1f, 0f)
+						.scale(8f, 0.2f, 8f))
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		Rigidbody body = new Rigidbody()
+				.mass(1f)
+				.angularVelocity(0f, 8f, 0f)
+				.linearDamping(0.05f)
+				.angularDamping(0.08f);
+		Transform transform = new Transform()
+				.position(0f, 0.55f, 0f);
+		scene.addEntity(new Entity("yaw-spinning-box")
+				.addComponent(transform)
+				.addComponent(body)
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		scene.init();
+		for (int i = 0; i < 600; i++)
+			scene.loop(1f / 60f);
+
+		if (body.angularVelocity().length() > 0.25f)
+			throw new AssertionError("yaw spinning box did not lose angular velocity");
+		if (Math.abs(transform.position().x) > 0.4f || Math.abs(transform.position().z) > 0.4f)
+			throw new AssertionError("yaw spinning box drifted too far");
+
+		scene.dispose();
+	}
+
+	private static void testWallContactDoesNotGlueFallingBox () {
+		Scene scene = new Scene();
+		scene.addSystem(new PhysicsSystem()
+				.gravity(0f, -10f, 0f)
+				.fixedTimeStep(1f / 60f)
+				.velocityIterations(10)
+				.positionIterations(10)
+				.maxSpeeds(20f, 10f));
+
+		scene.addEntity(new Entity("wall")
+				.addComponent(new Transform()
+						.position(0f, 2f, 0f)
+						.scale(0.2f, 5f, 4f))
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		Rigidbody body = new Rigidbody()
+				.mass(1f)
+				.velocity(-0.3f, 0f, 0f)
+				.linearDamping(0.02f)
+				.angularDamping(0.08f);
+		Transform transform = new Transform()
+				.position(0.55f, 3f, 0f);
+		scene.addEntity(new Entity("wall-touching-box")
+				.addComponent(transform)
+				.addComponent(body)
+				.addComponent(new BoxCollider()
+						.halfExtents(0.5f, 0.5f, 0.5f)
+						.friction(1f)));
+
+		scene.init();
+		for (int i = 0; i < 180; i++)
+			scene.loop(1f / 60f);
+
+		if (transform.position().y > 1.5f)
+			throw new AssertionError("box was glued to the wall instead of falling: y=" + transform.position().y);
+
+		scene.dispose();
+	}
+
 	private static void testSpinningBoxSettlesInCorner () {
 		Scene scene = new Scene();
 		scene.addSystem(new PhysicsSystem()
@@ -273,9 +452,6 @@ public final class PhysicsSystemTest {
 				.fixedTimeStep(1f / 60f)
 				.velocityIterations(8)
 				.positionIterations(8)
-				.rollingFriction(0.35f)
-				.contactDamping(0.12f, 0.65f)
-				.penetrationFriction(0.35f)
 				.maxSpeeds(16f, 6f)
 				.sleepThresholds(0.1f, 0.16f, 0.35f));
 

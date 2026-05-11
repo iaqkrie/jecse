@@ -140,16 +140,21 @@ public final class Window {
 	}
 
 	public void setCursorNormal () {
-		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		setCursorMode(GLFW_CURSOR_NORMAL);
 	}
 	public void setCursorDisabled () {
-		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		setCursorMode(GLFW_CURSOR_DISABLED);
 	}
 	public void setCursorHidden () {
-		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		setCursorMode(GLFW_CURSOR_HIDDEN);
 	}
 	public void setCursorCaptured () {
-		glfwSetInputMode(_hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+		setCursorMode(GLFW_CURSOR_CAPTURED);
+	}
+
+	private void setCursorMode (int mode) {
+		glfwSetInputMode(_hwnd, GLFW_CURSOR, mode);
+		_input.resetMousePositionTracking();
 	}
 
 	public void show () { glfwShowWindow(_hwnd); }

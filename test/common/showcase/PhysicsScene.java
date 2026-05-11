@@ -14,7 +14,10 @@ import qchromatic.jecse.component.Transform;
 import qchromatic.jecse.core.Entity;
 import qchromatic.jecse.engine.Application;
 import qchromatic.jecse.engine.DebugRenderer;
+import qchromatic.jecse.engine.EngineContext;
 import qchromatic.jecse.engine.EngineConfig;
+import qchromatic.jecse.engine.Input;
+import qchromatic.jecse.engine.KeyCode;
 import qchromatic.jecse.engine.Material;
 import qchromatic.jecse.engine.Meshes;
 import qchromatic.jecse.engine.Scene;
@@ -35,6 +38,12 @@ public final class PhysicsScene {
 				.debugOpenGLErrors(false);
 
 		Application app = new Application("jecse physics", config);
+		app.getWindow().setCursorDisabled();
+		app.context().sceneManager().load(createScene());
+		app.run();
+	}
+
+	private static Scene createScene () {
 		Scene scene = new Scene();
 
 		// Скрипты идут первыми: здесь они могут добавлять силы, torque или импульсы в Rigidbody.
@@ -45,13 +54,10 @@ public final class PhysicsScene {
 				.gravity(0f, -9.81f, 0f)
 				.fixedTimeStep(1f / 60f)
 				.maxSubSteps(5)
-				.velocityIterations(8)
-				.positionIterations(8)
-				.rollingFriction(0.18f)
-				.contactDamping(0.05f, 0.25f)
-				.penetrationFriction(0.12f)
-				.maxSpeeds(18f, 8f)
-				.sleepThresholds(0.06f, 0.08f, 0.55f)
+				.velocityIterations(12)
+				.positionIterations(10)
+				.maxSpeeds(16f, 8f)
+				.sleepThresholds(0.08f, 0.12f, 0.5f)
 				.debugDrawColliders(true));
 
 		scene.addSystem(new RenderSystem()
@@ -85,13 +91,14 @@ public final class PhysicsScene {
 		addWall(scene, "right-wall", 4f, 1f, 0f, 0.25f, 1.2f, 4f);
 		addWall(scene, "back-wall", 0f, 1f, -4f, 4f, 1.2f, 0.25f);
 
-		// Узкая опора и смещенный куб показывают главное исправление: контактный импульс теперь дает torque.
+		// Узкая опора и смещенный куб проверяют устойчивость: центр масс вне contact patch должен опрокинуть тело.
 		addNarrowSupport(scene);
 		addDynamicBox(scene, "off-center-box", 0.75f, 3.2f, -1.2f, new Vec4(0.25f, 0.68f, 1f, 1f), new Vec3(0f, 0f, 0f));
 
 		addDynamicBox(scene, "falling-box-a", -1.2f, 4.5f, 0f, new Vec4(0.25f, 0.68f, 1f, 1f), new Vec3(1.6f, 0f, 0f));
 		addDynamicBox(scene, "falling-box-b", 0.1f, 7f, 0.2f, new Vec4(1f, 0.55f, 0.24f, 1f), new Vec3(-0.6f, 0f, 0.2f));
-		addDynamicBox(scene, "bouncy-box", 1.4f, 5.8f, -0.5f, new Vec4(0.55f, 1f, 0.32f, 1f), new Vec3(-1.1f, 0f, 0.5f), 0.45f);
+		addDynamicBox(scene, "falling-box-c", 3f, 7f, 0.2f, new Vec4(1f, 0f, 1f, 1f), new Vec3(-0.6f, 0f, 0.2f));
+		addDynamicBox(scene, "low-bounce-box", 1.4f, 5.8f, -0.5f, new Vec4(0.55f, 1f, 0.32f, 1f), new Vec3(-1.1f, 0f, 0.5f), 0.08f);
 
 		// Kinematic body не получает гравитацию, но двигается своей velocity и сталкивается с dynamic телами.
 		scene.addEntity(new Entity("kinematic-platform")
@@ -115,8 +122,10 @@ public final class PhysicsScene {
 		scene.addEntity(new Entity("physics-grid")
 				.addComponent(new PhysicsGridScript()));
 
-		app.context().sceneManager().load(scene);
-		app.run();
+		scene.addEntity(new Entity("scene-controls")
+				.addComponent(new PhysicsSceneControlScript()));
+
+		return scene;
 	}
 
 	private static void addFloor (Scene scene) {
@@ -126,8 +135,8 @@ public final class PhysicsScene {
 						.scale(8f, 0.2f, 8f))
 				.addComponent(new BoxCollider()
 						.halfExtents(0.5f, 0.5f, 0.5f)
-						.friction(0.95f)
-						.restitution(0.05f))
+						.friction(1f)
+						.restitution(0f))
 				.addComponent(new MeshRenderer()
 						.mesh(Meshes.cube())
 						.material(new Material().color(new Vec4(0.18f, 0.24f, 0.22f, 1f)))
@@ -142,7 +151,7 @@ public final class PhysicsScene {
 						.scale(1f, 0.5f, 2.2f))
 				.addComponent(new BoxCollider()
 						.halfExtents(0.5f, 0.5f, 0.5f)
-						.friction(0.75f))
+						.friction(0.9f))
 				.addComponent(new MeshRenderer()
 						.mesh(Meshes.cube())
 						.material(new Material().color(new Vec4(0.33f, 0.28f, 0.48f, 1f)))
@@ -157,7 +166,7 @@ public final class PhysicsScene {
 						.scale(halfX * 2f, halfY * 2f, halfZ * 2f))
 				.addComponent(new BoxCollider()
 						.halfExtents(0.5f, 0.5f, 0.5f)
-						.friction(0.8f))
+						.friction(0.95f))
 				.addComponent(new MeshRenderer()
 						.mesh(Meshes.cube())
 						.material(new Material().color(new Vec4(0.28f, 0.32f, 0.34f, 1f)))
@@ -176,11 +185,11 @@ public final class PhysicsScene {
 				.addComponent(new Rigidbody()
 						.mass(1f)
 						.velocity(velocity)
-						.linearDamping(0.1f)
-						.angularDamping(0.25f))
+						.linearDamping(0.05f)
+						.angularDamping(0.08f))
 				.addComponent(new BoxCollider()
 						.halfExtents(0.5f, 0.5f, 0.5f)
-						.friction(0.8f)
+						.friction(0.9f)
 						.restitution(restitution))
 				.addComponent(new MeshRenderer()
 						.mesh(Meshes.cube())
@@ -224,6 +233,17 @@ public final class PhysicsScene {
 				DebugRenderer.line(new Vec3(i, 0f, -4f), new Vec3(i, 0f, 4f), new Vec4(0.18f, 0.25f, 0.28f, 1f));
 				DebugRenderer.line(new Vec3(-4f, 0f, i), new Vec3(4f, 0f, i), new Vec4(0.18f, 0.25f, 0.28f, 1f));
 			}
+		}
+	}
+
+	private static final class PhysicsSceneControlScript extends Script {
+		@Override
+		public void loop (float dtime) {
+			if (!Input.getKeyDown(KeyCode.R)) return;
+
+			EngineContext context = EngineContext.current();
+			context.window().setCursorDisabled();
+			context.sceneManager().requestReplace(createScene());
 		}
 	}
 }

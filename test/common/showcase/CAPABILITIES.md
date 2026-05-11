@@ -17,9 +17,10 @@
 - DirectionalLight component и простой lit shader.
 - DebugRenderer для линий, transform axes и bounds через отдельную debug render system.
 - Free camera controller script с WASD, Space, Shift и mouse delta.
-- Простая 3D-физика через PhysicsSystem: gravity, fixed timestep, substeps, velocity/position iterations, support/penetration friction, contact damping, rolling friction, speed limits, sleeping и collision solving.
+- Простая 3D-физика через PhysicsSystem: gravity, fixed timestep, substeps, velocity/position iterations, impulse constraints, Coulomb friction, Baumgarte penetration bias, speed limits, sleeping и collision solving.
 - Rigidbody для dynamic, static и kinematic тел, mass, center of mass, linear/angular velocity, forces, torque, impulses, gravity scale, damping и sleep/wake state.
 - BoxCollider с offset, layer/mask filtering, trigger flag, restitution и friction.
 - OBB/SAT collision detection/resolution для box colliders, включая dynamic-static и dynamic-dynamic пары.
-- Контактные импульсы в точке контакта с учетом inertia, поэтому смещенные контакты создают вращение.
-- Sleep проверяет устойчивую опору: центр масс должен попадать в contact patch, иначе тело продолжает падать/вращаться.
+- Box contacts используют manifold до 4 точек, поэтому трение гасит вращение на плоскости, а не только линейное скольжение.
+- Контактные импульсы учитывают inertia и center of mass, поэтому смещенная/неустойчивая опора опрокидывает тело через normal constraint, а не через искусственный torque.
+- Sleep проверяет реальные точки contact patch: линия или точка контакта не считаются устойчивой площадкой.
